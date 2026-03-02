@@ -1,6 +1,6 @@
 import { HeroSection } from "@/components/marketing/hero-section";
 import { HowItWorksPreview } from "@/components/marketing/how-it-works-preview";
-import { SocialProofSection } from "@/components/marketing/social-proof-section";
+import { DesignersShowcaseSection } from "@/components/marketing/designers-showcase-section";
 import { CTASection } from "@/components/marketing/cta-section";
 
 export default function HomePage() {
@@ -8,7 +8,7 @@ export default function HomePage() {
     <>
       <HeroSection />
       <HowItWorksPreview />
-      <SocialProofSection />
+      <DesignersShowcaseSection />
       <CTASection />
     </>
   );

@@ -6,16 +6,25 @@ interface GalleryCardProps {
   name: string;
   cuisine: string;
   style: string;
+  imageUrl?: string;
 }
 
-export function GalleryCard({ name, cuisine, style }: GalleryCardProps) {
+export function GalleryCard({ name, cuisine, style, imageUrl }: GalleryCardProps) {
   return (
     <Card className="group overflow-hidden">
-      {/* Image placeholder */}
       <div className="relative aspect-[3/4] bg-muted">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <FileText className="size-12 text-muted-foreground/30" />
-        </div>
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={`${name} menu design`}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <FileText className="size-12 text-muted-foreground/30" />
+          </div>
+        )}
         <div className="absolute inset-0 bg-primary/5 opacity-0 transition-opacity group-hover:opacity-100" />
       </div>
       <CardContent className="p-4">

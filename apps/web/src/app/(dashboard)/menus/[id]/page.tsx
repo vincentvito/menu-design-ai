@@ -1,71 +1,19 @@
-import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
-import {
-  ArrowRight,
-  UtensilsCrossed,
-  LayoutGrid,
-  Palette,
-  ImageIcon,
-  CreditCard,
-  Truck,
-} from "lucide-react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { MenuHubHeader } from "@/components/menu-hub/menu-hub-header";
 import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { StatusBadge } from "@/components/shared/status-badge";
+  MenuProgressBar,
+  getPhase,
+} from "@/components/menu-hub/menu-progress-bar";
+import { SetupPhaseSection } from "@/components/menu-hub/setup-phase-section";
+import { GenerationPhaseSection } from "@/components/menu-hub/generation-phase-section";
+import { SelectionPhaseSection } from "@/components/menu-hub/selection-phase-section";
+import { FulfillmentPhaseSection } from "@/components/menu-hub/fulfillment-phase-section";
 import type { MenuStatus } from "@/types/menu";
-
-const AFTER_CUISINE = [
-  "style_selected",
-  "generating_samples",
-  "samples_ready",
-  "sample_selected",
-  "payment_pending",
-  "paid",
-  "design_in_progress",
-  "design_complete",
-  "delivered",
-];
-const AFTER_FORMAT = [
-  "style_selected",
-  "generating_samples",
-  "samples_ready",
-  "sample_selected",
-  "payment_pending",
-  "paid",
-  "design_in_progress",
-  "design_complete",
-  "delivered",
-];
-const AFTER_STYLE = [
-  "generating_samples",
-  "samples_ready",
-  "sample_selected",
-  "payment_pending",
-  "paid",
-  "design_in_progress",
-  "design_complete",
-  "delivered",
-];
-const AFTER_SAMPLES = [
-  "sample_selected",
-  "payment_pending",
-  "paid",
-  "design_in_progress",
-  "design_complete",
-  "delivered",
-];
-const AFTER_PAYMENT = [
-  "paid",
-  "design_in_progress",
-  "design_complete",
-  "delivered",
-];
 
 export default async function MenuDetailPage({
   params,
@@ -79,114 +27,90 @@ export default async function MenuDetailPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: menu } = await supabase
-    .from("menus")
-    .select("*")
-    .eq("id", id)
-    .single();
+  // Fetch menu + related data in parallel
+  const [{ data: menu }, { data: latestGeneration }, { data: order }] =
+    await Promise.all([
+      supabase.from("menus").select("*").eq("id", id).single(),
+      supabase
+        .from("ai_generations")
+        .select(
+          "id, status, ai_generation_images(id, image_url, status, variant_index)"
+        )
+        .eq("menu_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("orders")
+        .select(
+          "id, status, amount, currency, paid_at, created_at, generation_id, selected_image_id"
+        )
+        .eq("menu_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
 
   if (!menu) notFound();
 
-  const steps = [
-    {
-      title: "Select Cuisine",
-      description: "Choose your restaurant's cuisine type",
-      href: `/menus/${id}/cuisine`,
-      icon: UtensilsCrossed,
-      done: !!menu.cuisine_type || AFTER_CUISINE.includes(menu.status),
-    },
-    {
-      title: "Format & Layout",
-      description: "Choose menu format and page layout",
-      href: `/menus/${id}/format`,
-      icon: LayoutGrid,
-      done: !!menu.menu_format || AFTER_FORMAT.includes(menu.status),
-    },
-    {
-      title: "Style & Colors",
-      description: "Pick a design style and color palette",
-      href: `/menus/${id}/style`,
-      icon: Palette,
-      done: !!menu.template_id || AFTER_STYLE.includes(menu.status),
-    },
-    {
-      title: "AI Samples",
-      description: "Review 4 AI-generated menu designs and pick your favorite",
-      href: `/menus/${id}/results`,
-      icon: ImageIcon,
-      done: AFTER_SAMPLES.includes(menu.status),
-    },
-    {
-      title: "Order ($199)",
-      description:
-        "Place your order — a professional designer will create your final menu",
-      href: `/menus/${id}/order`,
-      icon: CreditCard,
-      done: AFTER_PAYMENT.includes(menu.status),
-    },
-    {
-      title: "Delivery",
-      description: "Your designer is working on the final menu",
-      href: `/menus/${id}`,
-      icon: Truck,
-      done: menu.status === "delivered",
-    },
-  ];
+  // Fetch selected image if one is chosen
+  let selectedImage: { id: string; image_url: string } | null = null;
+  if (menu.selected_image_id) {
+    const { data } = await supabase
+      .from("ai_generation_images")
+      .select("id, image_url")
+      .eq("id", menu.selected_image_id)
+      .single();
+    if (data?.image_url) {
+      selectedImage = { id: data.id, image_url: data.image_url };
+    }
+  }
 
-  const currentIdx = steps.findIndex((s) => !s.done);
+  const phase = getPhase(menu.status as MenuStatus);
+  const images = latestGeneration?.ai_generation_images ?? [];
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">
-            {menu.restaurant_name || "Untitled Menu"}
-          </h1>
-          <p className="text-muted-foreground">
-            {menu.cuisine_type || "Menu"} &middot;{" "}
-            {menu.input_method === "text_paste" ? "Text input" : "File upload"}
-          </p>
-        </div>
-        <StatusBadge status={menu.status as MenuStatus} />
-      </div>
+      <MenuHubHeader menu={menu} />
+      <MenuProgressBar menu={menu} phase={phase} />
 
-      <div className="space-y-4">
-        {steps.map((step, i) => (
-          <Card
-            key={step.title}
-            className={i === currentIdx ? "border-primary" : ""}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${step.done ? "bg-primary text-primary-foreground" : i === currentIdx ? "border-2 border-primary text-primary" : "border-2 border-muted text-muted-foreground"}`}
-                  >
-                    {i + 1}
-                  </div>
-                  <div>
-                    <CardTitle className="text-base">{step.title}</CardTitle>
-                    <CardDescription>{step.description}</CardDescription>
-                  </div>
-                </div>
-                {i === currentIdx && step.href !== `/menus/${id}` && (
-                  <Button asChild>
-                    <Link href={step.href}>
-                      Continue
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                )}
-                {step.done && step.href !== `/menus/${id}` && (
-                  <Button variant="ghost" asChild>
-                    <Link href={step.href}>View</Link>
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
+      {phase === "setup" && <SetupPhaseSection menu={menu} />}
+
+      {phase === "generation" && (
+        <GenerationPhaseSection menu={menu} images={images} />
+      )}
+
+      {phase === "selection" && (
+        <SelectionPhaseSection menu={menu} selectedImage={selectedImage} />
+      )}
+
+      {phase === "fulfillment" && (
+        <FulfillmentPhaseSection
+          menu={menu}
+          selectedImage={selectedImage}
+          order={order}
+        />
+      )}
+
+      {phase === "failed" && (
+        <Card className="border-destructive">
+          <CardContent className="flex flex-col items-center gap-4 pt-6 text-center">
+            <AlertTriangle className="h-10 w-10 text-destructive" />
+            <div>
+              <p className="font-semibold">Something went wrong</p>
+              <p className="text-sm text-muted-foreground">
+                There was an error processing your menu. Please try again.
+              </p>
+            </div>
+            <Button variant="outline" asChild>
+              <Link href={`/menus/${menu.id}/style`}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Try Again
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

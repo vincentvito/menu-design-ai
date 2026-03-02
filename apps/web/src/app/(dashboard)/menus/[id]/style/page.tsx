@@ -209,10 +209,6 @@ export default function StylePage() {
         <h2 className="text-lg font-semibold">Design Style</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {templates.map((template) => {
-            const colors = template.color_scheme as Record<
-              string,
-              string
-            > | null;
             return (
               <Card
                 key={template.id}
@@ -231,21 +227,6 @@ export default function StylePage() {
                   <CardDescription>{template.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {colors && (
-                    <div className="mb-3 flex gap-2">
-                      {Object.entries(colors).map(([key, color]) => (
-                        <div key={key} className="space-y-1 text-center">
-                          <div
-                            className="h-8 w-8 rounded-md border"
-                            style={{ backgroundColor: color }}
-                          />
-                          <span className="text-[10px] text-muted-foreground">
-                            {key}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                   <div className="flex gap-2">
                     <Badge variant="secondary">{template.category}</Badge>
                     {template.supports_rtl && (

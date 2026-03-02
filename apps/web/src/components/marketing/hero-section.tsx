@@ -4,8 +4,13 @@ import { MenuMockup } from "./menu-mockup";
 
 export function HeroSection() {
   return (
-    <section className="py-20 sm:py-28 lg:py-32">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+    <section className="relative overflow-hidden py-20 sm:py-28 lg:py-32">
+      {/* Subtle gradient background blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-1/2 -right-1/4 h-[800px] w-[800px] rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute -bottom-1/2 -left-1/4 h-[600px] w-[600px] rounded-full bg-accent/5 blur-3xl" />
+      </div>
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Left: Text */}
           <div className="space-y-6 text-center lg:text-left">

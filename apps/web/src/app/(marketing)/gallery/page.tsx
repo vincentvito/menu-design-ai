@@ -6,19 +6,21 @@ import { GalleryCard } from "@/components/marketing/gallery-card";
 export const metadata: Metadata = {
   title: "Gallery — MenuAI",
   description:
-    "Browse menu designs created by MenuAI and our professional designers. Italian, Japanese, Mexican, French, and more.",
+    "Browse menu designs created by MenuAI and our professional designers. Italian, Japanese, Mexican, French, Korean, Vegan, Steakhouse, and more.",
 };
 
 const galleryItems = [
-  { id: 1, name: "La Bella Vita", cuisine: "Italian", style: "Elegant" },
-  { id: 2, name: "Sakura", cuisine: "Japanese", style: "Minimalist" },
-  { id: 3, name: "El Fuego", cuisine: "Mexican", style: "Bold" },
-  { id: 4, name: "Le Petit Bistro", cuisine: "French", style: "Classic" },
-  { id: 5, name: "Spice Route", cuisine: "Indian", style: "Vibrant" },
-  { id: 6, name: "The Green Table", cuisine: "American", style: "Modern" },
-  { id: 7, name: "Noodle House", cuisine: "Chinese", style: "Traditional" },
-  { id: 8, name: "Olive & Thyme", cuisine: "Mediterranean", style: "Warm" },
-  { id: 9, name: "Seoul Kitchen", cuisine: "Korean", style: "Contemporary" },
+  { id: 1, name: "La Bella Vita", cuisine: "Italian", style: "Classic Elegance", imageUrl: "/showcase/la-bella-vita.png" },
+  { id: 2, name: "Sakura Omakase", cuisine: "Japanese", style: "Modern Editorial", imageUrl: "/showcase/sakura.png" },
+  { id: 3, name: "El Fuego", cuisine: "Mexican", style: "Warm Artisan", imageUrl: "/showcase/el-fuego.png" },
+  { id: 4, name: "Le Petit Bistro", cuisine: "French", style: "Dark Dramatic", imageUrl: "/showcase/le-petit-bistro.png" },
+  { id: 5, name: "The Spice Route", cuisine: "Indian", style: "Warm Artisan", imageUrl: "/showcase/spice-route.png" },
+  { id: 6, name: "Verdant", cuisine: "Vegan", style: "Modern Editorial", imageUrl: "/showcase/verdant.png" },
+  { id: 7, name: "Ember & Oak", cuisine: "Steakhouse", style: "Dark Dramatic", imageUrl: "/showcase/ember-and-oak.png" },
+  { id: 8, name: "Golden Dragon Noodle House", cuisine: "Chinese", style: "Classic Elegance", imageUrl: "/showcase/noodle-house.png" },
+  { id: 9, name: "Olive & Thyme", cuisine: "Mediterranean", style: "Warm Artisan", imageUrl: "/showcase/olive-and-thyme.png" },
+  { id: 10, name: "Seoul Kitchen", cuisine: "Korean", style: "Dark Dramatic", imageUrl: "/showcase/seoul-kitchen.png" },
+  { id: 11, name: "Daily Bread", cuisine: "Cafe", style: "Classic Elegance", imageUrl: "/showcase/daily-bread.png" },
 ];
 
 export default function GalleryPage() {
@@ -43,6 +45,7 @@ export default function GalleryPage() {
               name={item.name}
               cuisine={item.cuisine}
               style={item.style}
+              imageUrl={item.imageUrl}
             />
           ))}
         </div>

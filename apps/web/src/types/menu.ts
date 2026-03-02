@@ -147,6 +147,9 @@ export interface AIGeneration {
   provider: string;
   model_id: string;
   total_cost_usd: number | null;
+  parent_generation_id: string | null;
+  source_image_id: string | null;
+  variation_instructions: string | null;
   created_at: string;
   completed_at: string | null;
 }

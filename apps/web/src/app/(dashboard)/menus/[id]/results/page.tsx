@@ -1,24 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback, use } from "react";
+import { useState, useEffect, useCallback, use, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
   Check,
+  ChevronRight,
   Loader2,
   RefreshCw,
+  Sparkles,
   AlertTriangle,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -26,8 +25,25 @@ import {
   checkAndUpdateImages,
   selectSample,
   generateSamples,
+  generateVariations,
 } from "@/app/actions/generation";
+import { VARIATION_TAGS } from "@/lib/prompts";
+import type { VariationTagCategory } from "@/lib/prompts";
 import type { AIGenerationImage } from "@/types/menu";
+
+interface GenerationHistoryEntry {
+  id: string;
+  thumbnailUrl: string | null;
+  isVariation: boolean;
+}
+
+const TAG_CATEGORY_LABELS: Record<VariationTagCategory, string> = {
+  background: "Background",
+  typography: "Typography",
+  colors: "Colors",
+  layout: "Layout",
+  imagery: "Imagery",
+};
 
 export default function ResultsPage({
   params,
@@ -46,6 +62,55 @@ export default function ResultsPage({
   const [saving, setSaving] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
 
+  // Variation refinement state
+  const [refineMode, setRefineMode] = useState(false);
+  const [refineImageId, setRefineImageId] = useState<string | null>(null);
+  const [freeTextInstruction, setFreeTextInstruction] = useState("");
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [refining, setRefining] = useState(false);
+  const [generationHistory, setGenerationHistory] = useState<
+    GenerationHistoryEntry[]
+  >([]);
+
+  // Build history chain by walking parent_generation_id
+  const loadHistory = useCallback(
+    async (currentGenId: string) => {
+      const history: GenerationHistoryEntry[] = [];
+      let genId: string | null = currentGenId;
+
+      while (genId) {
+        const { data } = await supabase
+          .from("ai_generations")
+          .select("id, parent_generation_id")
+          .eq("id", genId)
+          .single();
+
+        const gen = data as { id: string; parent_generation_id: string | null } | null;
+        if (!gen) break;
+
+        const { data: thumb } = await supabase
+          .from("ai_generation_images")
+          .select("image_url")
+          .eq("generation_id", gen.id)
+          .eq("status", "completed")
+          .order("variant_index")
+          .limit(1)
+          .single();
+
+        history.unshift({
+          id: gen.id,
+          thumbnailUrl: (thumb as { image_url: string | null } | null)?.image_url ?? null,
+          isVariation: !!gen.parent_generation_id,
+        });
+
+        genId = gen.parent_generation_id;
+      }
+
+      setGenerationHistory(history);
+    },
+    [supabase],
+  );
+
   // Load generation for this menu
   useEffect(() => {
     async function loadGeneration() {
@@ -59,6 +124,7 @@ export default function ResultsPage({
 
       if (gen) {
         setGenerationId(gen.id);
+        loadHistory(gen.id);
       }
 
       // Check if menu already has a selected image
@@ -75,28 +141,29 @@ export default function ResultsPage({
       setLoading(false);
     }
     loadGeneration();
-  }, [menuId, supabase]);
+  }, [menuId, supabase, loadHistory]);
 
   // Poll for image completion
   const poll = useCallback(async () => {
     if (!generationId || allDone) return;
 
-    // Check and update images from Replicate
     await checkAndUpdateImages(generationId);
 
-    // Then poll current state
     const result = await pollGeneration(generationId);
     setImages(result.images as AIGenerationImage[]);
-    setAllDone(result.allDone);
-  }, [generationId, allDone]);
+
+    if (result.allDone && !allDone) {
+      setAllDone(true);
+      // Refresh history thumbnails once images are done
+      loadHistory(generationId);
+    }
+  }, [generationId, allDone, loadHistory]);
 
   useEffect(() => {
     if (!generationId) return;
 
-    // Initial poll
     poll();
 
-    // Poll every 3 seconds while not done
     if (!allDone) {
       const interval = setInterval(poll, 3000);
       return () => clearInterval(interval);
@@ -137,10 +204,89 @@ export default function ResultsPage({
       setImages([]);
       setAllDone(false);
       setSelectedImageId(null);
+      setRefineMode(false);
       toast.success("Regenerating 4 new designs...");
+      loadHistory(result.generationId);
     }
     setRegenerating(false);
   }
+
+  function handleEnterRefineMode(imageId: string) {
+    setRefineMode(true);
+    setRefineImageId(imageId);
+    setFreeTextInstruction("");
+    setSelectedTags([]);
+  }
+
+  function handleExitRefineMode() {
+    setRefineMode(false);
+    setRefineImageId(null);
+    setFreeTextInstruction("");
+    setSelectedTags([]);
+  }
+
+  function toggleTag(instruction: string) {
+    setSelectedTags((prev) =>
+      prev.includes(instruction)
+        ? prev.filter((t) => t !== instruction)
+        : [...prev, instruction],
+    );
+  }
+
+  async function handleGenerateVariations() {
+    if (!refineImageId) return;
+
+    if (!freeTextInstruction.trim() && selectedTags.length === 0) {
+      toast.error(
+        "Please describe what you'd like to change or select at least one tag",
+      );
+      return;
+    }
+
+    setRefining(true);
+    const result = await generateVariations(
+      menuId,
+      refineImageId,
+      freeTextInstruction,
+      selectedTags,
+    );
+
+    if (result.error) {
+      toast.error(result.error);
+      if (result.error.includes("credits")) {
+        router.push("/credits/buy");
+      }
+      setRefining(false);
+      return;
+    }
+
+    if (result.generationId) {
+      setGenerationId(result.generationId);
+      setImages([]);
+      setAllDone(false);
+      setSelectedImageId(null);
+      setRefineMode(false);
+      setFreeTextInstruction("");
+      setSelectedTags([]);
+      toast.success("Generating 4 variations... this takes about 30 seconds");
+      loadHistory(result.generationId);
+    }
+    setRefining(false);
+  }
+
+  function handleHistoryClick(historyGenId: string) {
+    if (historyGenId === generationId) return;
+    setGenerationId(historyGenId);
+    setImages([]);
+    setAllDone(false);
+    setSelectedImageId(null);
+    setRefineMode(false);
+  }
+
+  // Get the selected image URL for the refine panel thumbnail
+  const refineImageUrl = refineImageId
+    ? images.find((img) => img.id === refineImageId)?.image_url
+    : null;
 
   if (loading) {
     return (
@@ -177,6 +323,7 @@ export default function ResultsPage({
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">AI Menu Designs</h1>
@@ -211,13 +358,49 @@ export default function ResultsPage({
         </div>
       </div>
 
+      {/* History breadcrumb */}
+      {generationHistory.length > 1 && (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">History:</span>
+          {generationHistory.map((gen, i) => (
+            <Fragment key={gen.id}>
+              {i > 0 && (
+                <ChevronRight className="h-3 w-3 text-muted-foreground" />
+              )}
+              <button
+                className={`flex items-center gap-1.5 rounded-md px-2 py-1 text-xs transition-colors ${
+                  gen.id === generationId
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted hover:bg-muted/80"
+                }`}
+                onClick={() => handleHistoryClick(gen.id)}
+              >
+                {gen.thumbnailUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={gen.thumbnailUrl}
+                    alt=""
+                    className="h-6 w-6 rounded object-cover"
+                  />
+                )}
+                {gen.isVariation ? `V${i}` : "Original"}
+              </button>
+            </Fragment>
+          ))}
+        </div>
+      )}
+
+      {/* Image grid */}
       <div className="grid grid-cols-2 gap-4">
         {(images.length > 0 ? images : Array.from({ length: 4 })).map(
           (img, i) => {
             const image = img as AIGenerationImage | undefined;
             const isCompleted = image?.status === "completed";
             const isFailed = image?.status === "failed";
-            const isGenerating = !image || image.status === "generating" || image.status === "pending";
+            const isGenerating =
+              !image ||
+              image.status === "generating" ||
+              image.status === "pending";
             const isSelected = image?.id === selectedImageId;
 
             return (
@@ -271,6 +454,18 @@ export default function ResultsPage({
                           <Check className="h-5 w-5 text-primary-foreground" />
                         </div>
                       )}
+                      {allDone && (
+                        <button
+                          className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-md bg-background/80 px-2.5 py-1.5 text-xs font-medium shadow-sm backdrop-blur-sm transition-colors hover:bg-background"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEnterRefineMode(image.id);
+                          }}
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          Refine
+                        </button>
+                      )}
                     </>
                   )}
                 </CardContent>
@@ -280,7 +475,8 @@ export default function ResultsPage({
         )}
       </div>
 
-      {allDone && completedCount > 0 && (
+      {/* Action button */}
+      {allDone && completedCount > 0 && !refineMode && (
         <Button
           size="lg"
           className="w-full"
@@ -294,6 +490,98 @@ export default function ResultsPage({
           )}
           Select This Design & Continue to Order
         </Button>
+      )}
+
+      {/* Refinement panel */}
+      {refineMode && (
+        <Card>
+          <CardContent className="space-y-5 p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                {refineImageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={refineImageUrl}
+                    alt="Selected design"
+                    className="h-20 w-15 rounded-md border object-cover"
+                  />
+                )}
+                <div>
+                  <h3 className="font-semibold">Refine This Design</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Describe changes or pick suggestions below. We&apos;ll
+                    generate 4 variations.
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleExitRefineMode}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Free text input */}
+            <Textarea
+              placeholder="e.g., Make the background darker, use a more elegant font, add more whitespace between sections..."
+              value={freeTextInstruction}
+              onChange={(e) => setFreeTextInstruction(e.target.value)}
+              rows={3}
+            />
+
+            {/* Tag chips by category */}
+            <div className="space-y-3">
+              <p className="text-sm font-medium">Quick suggestions</p>
+              {(
+                Object.entries(VARIATION_TAGS) as [
+                  VariationTagCategory,
+                  (typeof VARIATION_TAGS)[VariationTagCategory],
+                ][]
+              ).map(([category, tags]) => (
+                <div key={category} className="space-y-1.5">
+                  <p className="text-xs text-muted-foreground">
+                    {TAG_CATEGORY_LABELS[category]}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag) => {
+                      const isActive = selectedTags.includes(tag.instruction);
+                      return (
+                        <Badge
+                          key={tag.label}
+                          variant={isActive ? "default" : "outline"}
+                          className="cursor-pointer select-none transition-colors"
+                          onClick={() => toggleTag(tag.instruction)}
+                        >
+                          {tag.label}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Generate variations button */}
+            <Button
+              size="lg"
+              className="w-full"
+              disabled={
+                refining ||
+                (!freeTextInstruction.trim() && selectedTags.length === 0)
+              }
+              onClick={handleGenerateVariations}
+            >
+              {refining ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="mr-2 h-4 w-4" />
+              )}
+              Generate Variations (1 credit)
+            </Button>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

@@ -45,7 +45,7 @@ export function HowItWorksPreview() {
                 <div className="mb-4 flex size-12 items-center justify-center rounded-lg bg-primary/10">
                   <step.icon className="size-6 text-primary" />
                 </div>
-                <Badge variant="secondary" className="mb-2">
+                <Badge className="mb-2 border-accent/20 bg-accent/10 text-accent-foreground">
                   Step {i + 1}
                 </Badge>
                 <h3 className="font-semibold">{step.title}</h3>
