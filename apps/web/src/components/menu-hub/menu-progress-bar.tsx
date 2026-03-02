@@ -97,7 +97,7 @@ function getSteps(menu: Menu) {
       done: !!menu.template_id || AFTER_STYLE.includes(status),
     },
     { label: "AI Samples", done: AFTER_SAMPLES.includes(status) },
-    { label: "Order", done: AFTER_PAYMENT.includes(status) },
+    { label: "Download", done: AFTER_SAMPLES.includes(status) },
   ];
 }
 

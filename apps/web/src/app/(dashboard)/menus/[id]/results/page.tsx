@@ -7,14 +7,16 @@ import {
   ArrowRight,
   Check,
   ChevronRight,
+  Download,
   Loader2,
+  Palette,
   RefreshCw,
   Sparkles,
   AlertTriangle,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -61,6 +63,8 @@ export default function ResultsPage({
   const [allDone, setAllDone] = useState(false);
   const [saving, setSaving] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [pdfReady, setPdfReady] = useState(false);
 
   // Variation refinement state
   const [refineMode, setRefineMode] = useState(false);
@@ -170,7 +174,7 @@ export default function ResultsPage({
     }
   }, [generationId, allDone, poll]);
 
-  async function handleSelect() {
+  async function handleDownloadPdf() {
     if (!selectedImageId) {
       toast.error("Please select a design");
       return;
@@ -185,8 +189,30 @@ export default function ResultsPage({
       return;
     }
 
-    toast.success("Design selected! Proceed to order.");
-    router.push(`/menus/${menuId}/order`);
+    // Trigger PDF download
+    setDownloading(true);
+    try {
+      const response = await fetch(`/api/menus/${menuId}/pdf`);
+      if (!response.ok) throw new Error("Failed to generate PDF");
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download =
+        response.headers
+          .get("content-disposition")
+          ?.match(/filename="(.+)"/)?.[1] ?? "menu-design.pdf";
+      a.click();
+      URL.revokeObjectURL(url);
+
+      setPdfReady(true);
+      toast.success("Your menu PDF is downloading!");
+    } catch {
+      toast.error("Failed to download PDF. Please try again.");
+    }
+    setDownloading(false);
+    setSaving(false);
   }
 
   async function handleRegenerate() {
@@ -475,21 +501,65 @@ export default function ResultsPage({
         )}
       </div>
 
-      {/* Action button */}
-      {allDone && completedCount > 0 && !refineMode && (
+      {/* Action buttons */}
+      {allDone && completedCount > 0 && !refineMode && !pdfReady && (
         <Button
           size="lg"
           className="w-full"
-          disabled={!selectedImageId || saving}
-          onClick={handleSelect}
+          disabled={!selectedImageId || saving || downloading}
+          onClick={handleDownloadPdf}
         >
-          {saving ? (
+          {saving || downloading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <ArrowRight className="mr-2 h-4 w-4" />
+            <Download className="mr-2 h-4 w-4" />
           )}
-          Select This Design & Continue to Order
+          {downloading
+            ? "Preparing PDF..."
+            : "Download Your Menu PDF — Free"}
         </Button>
+      )}
+
+      {/* Designer upsell — shown after PDF download */}
+      {pdfReady && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Check className="h-5 w-5 text-primary" />
+              Your menu PDF is ready!
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Want a professional designer to perfect your menu? Get
+              print-ready files with polished typography, editable source
+              files, and 1 revision included.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                size="lg"
+                className="flex-1"
+                onClick={() => router.push(`/menus/${menuId}/order`)}
+              >
+                <Palette className="mr-2 h-4 w-4" />
+                Upgrade to Pro Design — $199
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={handleDownloadPdf}
+                disabled={downloading}
+              >
+                {downloading ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 h-4 w-4" />
+                )}
+                Download Again
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
       {/* Refinement panel */}

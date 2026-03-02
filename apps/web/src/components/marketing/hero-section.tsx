@@ -16,12 +16,12 @@ export function HeroSection() {
           <div className="space-y-6 text-center lg:text-left">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
               Your menu, redesigned by{" "}
-              <span className="text-primary">AI + expert designers</span>
+              <span className="text-primary">AI in seconds</span>
             </h1>
             <p className="mx-auto max-w-xl text-lg text-muted-foreground lg:mx-0">
               Upload your existing menu, pick your favorite AI-generated design,
-              and a professional designer delivers the final print-ready
-              version. First generation free.
+              and download a print-ready PDF — completely free. Want it
+              perfected? Upgrade to professional designer refinement.
             </p>
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center lg:justify-start">
               <Button size="lg" asChild>

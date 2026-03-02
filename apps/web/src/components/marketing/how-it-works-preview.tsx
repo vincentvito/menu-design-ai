@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Upload, Palette, Wand2, FileCheck } from "lucide-react";
+import { Upload, Palette, Wand2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,9 +21,9 @@ const steps = [
     desc: "Get 4 unique menu designs in seconds — pick your favorite",
   },
   {
-    icon: FileCheck,
-    title: "Pro Designer Delivers",
-    desc: "A real designer creates your final print-ready menu for $199",
+    icon: Download,
+    title: "Download Your PDF",
+    desc: "Get a free PDF of your design — or upgrade to pro designer refinement for $199",
   },
 ];
 

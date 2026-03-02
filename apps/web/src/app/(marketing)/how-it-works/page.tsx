@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Upload, Palette, Wand2, FileCheck, Check } from "lucide-react";
+import { Upload, Palette, Wand2, Download, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,7 +14,7 @@ import {
 export const metadata: Metadata = {
   title: "How It Works — MenuAI",
   description:
-    "Upload your menu, pick a style, get 4 AI-generated designs, then a professional designer delivers the final print-ready version.",
+    "Upload your menu, pick a style, get 4 AI-generated designs, and download your favorite as a free PDF. Optionally upgrade to professional designer refinement.",
 };
 
 const steps = [
@@ -58,16 +58,16 @@ const steps = [
     ],
   },
   {
-    icon: FileCheck,
-    title: "Professional Designer Delivers",
-    subtitle: "A real designer creates your final menu",
+    icon: Download,
+    title: "Download Your Menu PDF",
+    subtitle: "Free PDF download — upgrade to pro if you want",
     description:
-      "Once you pick your favorite AI design, a professional designer takes over. They refine every detail — typography, spacing, alignment — and deliver a polished, print-ready menu.",
+      "Pick your favorite AI design and download it as a free PDF. Love the design but want it perfected? Optionally upgrade for $199 and a professional designer will refine the typography, spacing, and layout to deliver a polished print-ready menu.",
     features: [
-      "Print-ready PDF optimized for your paper size",
-      "Editable source files (AI/PSD)",
-      "Revision included to perfect every detail",
-      "Delivered in 3 business days",
+      "Free PDF download of your AI-generated design",
+      "Optional $199 upgrade for professional designer refinement",
+      "Polished typography, layout, and print-ready files",
+      "Editable source files (AI/PSD) with the upgrade",
     ],
   },
 ];

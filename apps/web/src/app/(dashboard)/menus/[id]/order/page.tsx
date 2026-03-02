@@ -89,9 +89,9 @@ export default function OrderPage({
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Order Your Menu</h1>
+          <h1 className="text-2xl font-bold">Upgrade to Professional Design</h1>
           <p className="text-muted-foreground">
-            A professional designer will create your final menu
+            Love your AI design? Let a pro perfect it.
           </p>
         </div>
         <Button
@@ -108,8 +108,8 @@ export default function OrderPage({
         <CardHeader>
           <CardTitle>Your Selected Design</CardTitle>
           <CardDescription>
-            {restaurantName || "Menu"} — this will be the basis for your final
-            print-ready menu
+            {restaurantName || "Menu"} — a professional designer will refine
+            this into a polished, print-ready menu
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -131,12 +131,12 @@ export default function OrderPage({
       {/* Order summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Order Summary</CardTitle>
+          <CardTitle>Upgrade Summary</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span>Professional Menu Design</span>
+              <span>Professional Design Upgrade</span>
               <span className="font-semibold">$199.00</span>
             </div>
             {menuFormat && (
@@ -172,19 +172,19 @@ export default function OrderPage({
           </div>
 
           <div className="space-y-2 rounded-lg bg-muted/50 p-4 text-sm">
-            <h4 className="font-semibold">What you get:</h4>
+            <h4 className="font-semibold">What you get with the upgrade:</h4>
             <ul className="space-y-1 text-muted-foreground">
               <li className="flex items-center gap-2">
                 <Check className="h-3 w-3 text-primary" />
-                Print-ready menu design (PDF + source files)
+                Professional designer refines your AI design
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-3 w-3 text-primary" />
-                Based on your selected AI design
+                Polished typography and layout
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-3 w-3 text-primary" />
-                Professional designer crafts the final version
+                Print-ready PDF + editable source files (AI/PSD)
               </li>
               <li className="flex items-center gap-2">
                 <Check className="h-3 w-3 text-primary" />
@@ -208,7 +208,7 @@ export default function OrderPage({
             ) : (
               <CreditCard className="mr-2 h-4 w-4" />
             )}
-            Pay $199 — Start My Design
+            Upgrade for $199
           </Button>
 
           <p className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
