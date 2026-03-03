@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Download, CreditCard, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, CreditCard, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,7 +36,7 @@ export default function PreviewPage() {
   }, [menuId, supabase]);
 
   function handleOrder() {
-    toast.success("In production, this redirects to Stripe Checkout ($59.99 USD / AED 219.99)");
+    toast.success("In production, this redirects to Stripe Checkout ($199.00)");
   }
 
   if (loading) {
@@ -120,15 +120,16 @@ export default function PreviewPage() {
 
               <div className="flex items-center justify-between">
                 <span className="text-lg font-bold">Total</span>
-                <span className="text-lg font-bold">$59.99</span>
+                <span className="text-lg font-bold">$199.00</span>
               </div>
 
               <Button className="w-full" size="lg" onClick={handleOrder}>
-                <CreditCard className="mr-2 h-4 w-4" />Order Menu — $59.99
+                <CreditCard className="mr-2 h-4 w-4" />Order Menu — $199.00
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                Your menu will be reviewed by a designer before delivery. Typically within 2 hours.
+                Your menu will be reviewed by a designer before delivery,
+                typically within 3 business days.
               </p>
             </CardContent>
           </Card>

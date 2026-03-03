@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -205,9 +205,17 @@ export default function EditMenuPage() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {([["is_vegetarian", "Vegetarian"], ["is_vegan", "Vegan"], ["is_gluten_free", "Gluten Free"], ["is_spicy", "Spicy"], ["is_halal", "Halal"]] as const).map(([key, label]) => (
-                        <Badge key={key} variant={(item as Record<string, unknown>)[key] ? "default" : "outline"} className="cursor-pointer" onClick={() => updateItem(sectionIndex, itemIndex, key, !(item as Record<string, unknown>)[key])}>
+                        <Button
+                          key={key}
+                          type="button"
+                          size="sm"
+                          variant={(item as Record<string, unknown>)[key] ? "default" : "outline"}
+                          aria-pressed={!!(item as Record<string, unknown>)[key]}
+                          className="h-6 rounded-full px-2 text-xs"
+                          onClick={() => updateItem(sectionIndex, itemIndex, key, !(item as Record<string, unknown>)[key])}
+                        >
                           {label}
-                        </Badge>
+                        </Button>
                       ))}
                     </div>
                   </div>

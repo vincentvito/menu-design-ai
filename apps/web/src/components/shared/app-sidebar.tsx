@@ -27,9 +27,7 @@ import { useRouter } from "next/navigation";
 import {
   FileText,
   Plus,
-  CreditCard,
   Coins,
-  Settings,
   LogOut,
   ChevronUp,
   LayoutDashboard,
@@ -55,16 +53,6 @@ const menuItems = [
     title: "Credits",
     url: "/credits",
     icon: Coins,
-  },
-  {
-    title: "Orders",
-    url: "/orders",
-    icon: CreditCard,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
   },
 ];
 
@@ -135,12 +123,6 @@ export function AppSidebar({ user }: { user: User }) {
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" className="w-56">
-                <DropdownMenuItem asChild>
-                  <Link href="/settings">
-                    <Settings className="mr-2 h-4 w-4" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign out

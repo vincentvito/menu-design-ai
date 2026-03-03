@@ -1,8 +1,8 @@
 const stats = [
-  { value: "500+", label: "Menus designed" },
-  { value: "50+", label: "Restaurant styles" },
-  { value: "24h", label: "Average turnaround" },
-  { value: "4.9/5", label: "Customer rating" },
+  { value: "4", label: "AI concepts per generation" },
+  { value: "50+", label: "Cuisine & style directions" },
+  { value: "3 days", label: "Pro design turnaround" },
+  { value: "1", label: "Revision included" },
 ];
 
 export function SocialProofSection() {

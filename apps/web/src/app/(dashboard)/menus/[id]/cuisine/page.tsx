@@ -74,6 +74,16 @@ export default function CuisineSelectionPage({
     router.push(`/menus/${menuId}/format`);
   }
 
+  function handleCardKeySelect(
+    event: { key: string; preventDefault: () => void },
+    onSelect: () => void,
+  ) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect();
+    }
+  }
+
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl space-y-6">
@@ -105,16 +115,26 @@ export default function CuisineSelectionPage({
         </Button>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div
+        className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+        role="radiogroup"
+        aria-label="Cuisine type"
+      >
         {cuisines.map((cuisine) => (
           <Card
             key={cuisine.id}
+            role="radio"
+            aria-checked={selected === cuisine.slug}
+            tabIndex={0}
             className={`cursor-pointer transition-all hover:shadow-md ${
               selected === cuisine.slug
                 ? "border-primary ring-2 ring-primary/20"
                 : "hover:border-primary/50"
             }`}
             onClick={() => setSelected(cuisine.slug)}
+            onKeyDown={(event) =>
+              handleCardKeySelect(event, () => setSelected(cuisine.slug))
+            }
           >
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">

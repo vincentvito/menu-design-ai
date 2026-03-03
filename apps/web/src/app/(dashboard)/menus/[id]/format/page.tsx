@@ -161,6 +161,16 @@ export default function FormatLayoutPage({
     router.push(`/menus/${menuId}/style`);
   }
 
+  function handleCardKeySelect(
+    event: { key: string; preventDefault: () => void },
+    onSelect: () => void,
+  ) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect();
+    }
+  }
+
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl space-y-6">
@@ -201,18 +211,28 @@ export default function FormatLayoutPage({
       {/* Menu Format Section */}
       <div className="space-y-3">
         <h2 className="text-lg font-semibold">Menu Format</h2>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div
+          className="grid gap-3 sm:grid-cols-3"
+          role="radiogroup"
+          aria-label="Menu format"
+        >
           {FORMAT_OPTIONS.map((option) => {
             const Icon = option.icon;
             return (
               <Card
                 key={option.value}
+                role="radio"
+                aria-checked={selectedFormat === option.value}
+                tabIndex={0}
                 className={`cursor-pointer transition-all hover:shadow-md ${
                   selectedFormat === option.value
                     ? "border-primary ring-2 ring-primary/20"
                     : "hover:border-primary/50"
                 }`}
                 onClick={() => setSelectedFormat(option.value)}
+                onKeyDown={(event) =>
+                  handleCardKeySelect(event, () => setSelectedFormat(option.value))
+                }
               >
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-base">
@@ -242,19 +262,29 @@ export default function FormatLayoutPage({
             </span>
           </p>
         )}
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div
+          className="grid gap-3 sm:grid-cols-3"
+          role="radiogroup"
+          aria-label="Page layout"
+        >
           {LAYOUT_OPTIONS.map((option) => {
             const Icon = option.icon;
             const isRecommended = option.value === suggestedLayout && itemCount > 0;
             return (
               <Card
                 key={option.value}
+                role="radio"
+                aria-checked={selectedLayout === option.value}
+                tabIndex={0}
                 className={`cursor-pointer transition-all hover:shadow-md ${
                   selectedLayout === option.value
                     ? "border-primary ring-2 ring-primary/20"
                     : "hover:border-primary/50"
                 }`}
                 onClick={() => setSelectedLayout(option.value)}
+                onKeyDown={(event) =>
+                  handleCardKeySelect(event, () => setSelectedLayout(option.value))
+                }
               >
                 <CardHeader className="pb-2">
                   <CardTitle className="flex items-center gap-2 text-base">

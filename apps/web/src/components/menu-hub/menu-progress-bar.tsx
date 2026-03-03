@@ -31,7 +31,8 @@ const AFTER_STYLE: MenuStatus[] = [
   "design_complete",
   "delivered",
 ];
-const AFTER_SAMPLES: MenuStatus[] = [
+const AFTER_AI_SAMPLES: MenuStatus[] = [
+  "samples_ready",
   "sample_selected",
   "payment_pending",
   "paid",
@@ -39,7 +40,9 @@ const AFTER_SAMPLES: MenuStatus[] = [
   "design_complete",
   "delivered",
 ];
-const AFTER_PAYMENT: MenuStatus[] = [
+const AFTER_DOWNLOAD: MenuStatus[] = [
+  "sample_selected",
+  "payment_pending",
   "paid",
   "design_in_progress",
   "design_complete",
@@ -96,8 +99,8 @@ function getSteps(menu: Menu) {
       label: "Style",
       done: !!menu.template_id || AFTER_STYLE.includes(status),
     },
-    { label: "AI Samples", done: AFTER_SAMPLES.includes(status) },
-    { label: "Download", done: AFTER_SAMPLES.includes(status) },
+    { label: "AI Samples", done: AFTER_AI_SAMPLES.includes(status) },
+    { label: "Download", done: AFTER_DOWNLOAD.includes(status) },
   ];
 }
 

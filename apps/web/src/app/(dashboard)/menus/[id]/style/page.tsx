@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Check, ArrowRight, ArrowLeft, Loader2, Coins, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,11 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { generateSamples } from "@/app/actions/generation";
 import type { StyleTemplate, ColorPalette } from "@/types/menu";
+
+function sameColorArrays(a: string[], b: string[]) {
+  if (a.length !== b.length) return false;
+  return a.every((color, index) => color.toLowerCase() === b[index]?.toLowerCase());
+}
 
 export default function StylePage() {
   const router = useRouter();
@@ -38,6 +43,7 @@ export default function StylePage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [creditBalance, setCreditBalance] = useState<number | null>(null);
+  const previousTemplateRef = useRef<string | null>(null);
 
   // Load templates + menu state
   useEffect(() => {
@@ -81,10 +87,21 @@ export default function StylePage() {
 
   // Load palettes when selected template changes
   useEffect(() => {
+    let cancelled = false;
+
     async function loadPalettes() {
       if (!selectedTemplate) {
+        previousTemplateRef.current = null;
         setPalettes([]);
+        setSelectedPaletteColors(null);
+        setIsCustomPalette(false);
         return;
+      }
+
+      const templateChanged = previousTemplateRef.current !== selectedTemplate;
+      previousTemplateRef.current = selectedTemplate;
+      if (templateChanged) {
+        setIsCustomPalette(false);
       }
 
       const { data } = await supabase
@@ -94,27 +111,49 @@ export default function StylePage() {
         .eq("is_active", true)
         .order("sort_order");
 
-      if (data) {
-        const parsed = data.map((p) => ({
-          ...p,
-          colors: p.colors as string[],
-        })) as ColorPalette[];
-        setPalettes(parsed);
+      if (cancelled) return;
 
-        // Auto-select the default palette if no palette is currently selected
-        if (!selectedPaletteColors && !isCustomPalette) {
-          const defaultPalette = parsed.find((p) => p.is_default) || parsed[0];
-          if (defaultPalette) {
-            setSelectedPaletteColors(defaultPalette.colors);
-          }
-        }
+      const parsed = (data || []).map((p) => ({
+        ...p,
+        colors: p.colors as string[],
+      })) as ColorPalette[];
+      setPalettes(parsed);
+
+      const defaultPalette = parsed.find((p) => p.is_default) || parsed[0] || null;
+      if (templateChanged) {
+        setSelectedPaletteColors(defaultPalette ? defaultPalette.colors : null);
+        return;
       }
+
+      if (isCustomPalette) return;
+
+      setSelectedPaletteColors((current) => {
+        if (
+          current &&
+          parsed.some((palette) => sameColorArrays(palette.colors, current))
+        ) {
+          return current;
+        }
+        return defaultPalette ? defaultPalette.colors : null;
+      });
     }
+
     loadPalettes();
-    // Reset palette selection when template changes
-    setSelectedPaletteColors(null);
-    setIsCustomPalette(false);
-  }, [selectedTemplate, supabase]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedTemplate, supabase, isCustomPalette]);
+
+  function handleCardKeySelect(
+    event: { key: string; preventDefault: () => void },
+    onSelect: () => void,
+  ) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onSelect();
+    }
+  }
 
   async function handleGenerate() {
     if (!selectedTemplate) {
@@ -207,18 +246,29 @@ export default function StylePage() {
       {/* Style Selection */}
       <div className="space-y-3">
         <h2 className="text-lg font-semibold">Design Style</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          role="radiogroup"
+          aria-label="Design style"
+        >
           {templates.map((template) => {
+            const isSelected = selectedTemplate === template.id;
             return (
               <Card
                 key={template.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${selectedTemplate === template.id ? "ring-2 ring-primary" : ""}`}
+                role="radio"
+                aria-checked={isSelected}
+                tabIndex={0}
+                className={`cursor-pointer transition-all hover:shadow-md ${isSelected ? "ring-2 ring-primary" : ""}`}
                 onClick={() => setSelectedTemplate(template.id)}
+                onKeyDown={(event) =>
+                  handleCardKeySelect(event, () => setSelectedTemplate(template.id))
+                }
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-base">{template.name}</CardTitle>
-                    {selectedTemplate === template.id && (
+                    {isSelected && (
                       <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary">
                         <Check className="h-4 w-4 text-primary-foreground" />
                       </div>
@@ -247,7 +297,11 @@ export default function StylePage() {
             <Palette className="h-5 w-5" />
             Color Palette
           </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div
+            className="grid gap-3 sm:grid-cols-2"
+            role="radiogroup"
+            aria-label="Color palette"
+          >
             {palettes.map((palette) => {
               const isSelected =
                 !isCustomPalette &&
@@ -257,6 +311,9 @@ export default function StylePage() {
               return (
                 <Card
                   key={palette.id}
+                  role="radio"
+                  aria-checked={!!isSelected}
+                  tabIndex={0}
                   className={`cursor-pointer transition-all hover:shadow-md ${
                     isSelected
                       ? "border-primary ring-2 ring-primary/20"
@@ -266,6 +323,12 @@ export default function StylePage() {
                     setSelectedPaletteColors(palette.colors);
                     setIsCustomPalette(false);
                   }}
+                  onKeyDown={(event) =>
+                    handleCardKeySelect(event, () => {
+                      setSelectedPaletteColors(palette.colors);
+                      setIsCustomPalette(false);
+                    })
+                  }
                 >
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
@@ -295,6 +358,9 @@ export default function StylePage() {
 
             {/* Custom Palette Option */}
             <Card
+              role="radio"
+              aria-checked={isCustomPalette}
+              tabIndex={0}
               className={`cursor-pointer transition-all hover:shadow-md ${
                 isCustomPalette
                   ? "border-primary ring-2 ring-primary/20"
@@ -304,6 +370,12 @@ export default function StylePage() {
                 setIsCustomPalette(true);
                 setSelectedPaletteColors(customColors);
               }}
+              onKeyDown={(event) =>
+                handleCardKeySelect(event, () => {
+                  setIsCustomPalette(true);
+                  setSelectedPaletteColors(customColors);
+                })
+              }
             >
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">Custom Palette</CardTitle>

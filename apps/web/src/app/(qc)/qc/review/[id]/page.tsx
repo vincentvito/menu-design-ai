@@ -96,7 +96,7 @@ export default function DesignerReviewPage() {
 
   async function handleMarkComplete() {
     if (!notes.trim()) {
-      toast.error("Please add delivery notes");
+      toast.error("Please add completion notes");
       return;
     }
     setSaving(true);
@@ -104,7 +104,7 @@ export default function DesignerReviewPage() {
     const { error } = await supabase
       .from("menus")
       .update({
-        status: "delivered",
+        status: "design_complete",
       })
       .eq("id", menuId);
 
@@ -125,7 +125,7 @@ export default function DesignerReviewPage() {
       notes,
     });
 
-    toast.success("Menu marked as delivered! Customer will be notified.");
+    toast.success("Menu marked as design complete.");
     router.push("/qc");
   }
 
@@ -260,11 +260,11 @@ export default function DesignerReviewPage() {
           {/* Delivery notes */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base">Delivery Notes</CardTitle>
+              <CardTitle className="text-base">Completion Notes</CardTitle>
             </CardHeader>
             <CardContent>
               <Textarea
-                placeholder="Add notes about the delivery (file links, special instructions...)"
+                placeholder="Add notes about the completed design (file links, handoff details, special instructions...)"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={3}
@@ -299,7 +299,7 @@ export default function DesignerReviewPage() {
                 ) : (
                   <Check className="mr-2 h-4 w-4" />
                 )}
-                Mark as Delivered
+                Mark as Complete
               </Button>
             )}
           </div>

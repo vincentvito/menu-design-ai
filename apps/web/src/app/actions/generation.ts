@@ -20,7 +20,7 @@ import {
 } from "@/lib/prompts";
 import type { VariantPrompt } from "@/lib/prompts";
 import { redirect } from "next/navigation";
-import type { MenuData, MenuFormat, PageLayout } from "@/types/menu";
+import type { MenuData, MenuFormat, MenuStatus, PageLayout } from "@/types/menu";
 
 export async function generateSamples(menuId: string) {
   const supabase = await createClient();
@@ -294,12 +294,35 @@ export async function selectSample(menuId: string, imageId: string) {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const { data: menu } = await supabase
+    .from("menus")
+    .select("status")
+    .eq("id", menuId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!menu) {
+    return { error: "Menu not found" };
+  }
+
+  const currentStatus = menu.status as MenuStatus;
+  const shouldAdvanceStatus =
+    currentStatus === "samples_ready" || currentStatus === "generating_samples";
+
+  const updatePayload: {
+    selected_image_id: string;
+    status?: MenuStatus;
+  } = {
+    selected_image_id: imageId,
+  };
+
+  if (shouldAdvanceStatus) {
+    updatePayload.status = "sample_selected";
+  }
+
   const { error } = await supabase
     .from("menus")
-    .update({
-      selected_image_id: imageId,
-      status: "sample_selected",
-    })
+    .update(updatePayload)
     .eq("id", menuId)
     .eq("user_id", user.id);
 

@@ -66,7 +66,7 @@ export default function OrderPage({
       if (result.error) {
         toast.error(result.error);
       } else if (result.url) {
-        window.location.href = result.url;
+        window.location.assign(result.url);
         return;
       }
     } catch {

@@ -3,10 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { ShowcaseCard, type ShowcaseItem } from "./showcase-card";
 
 const stats = [
-  { value: "500+", label: "Menus designed" },
-  { value: "50+", label: "Restaurant styles" },
-  { value: "24h", label: "Average turnaround" },
-  { value: "4.9/5", label: "Customer rating" },
+  { value: "4", label: "AI concepts per generation" },
+  { value: "50+", label: "Cuisine & style directions" },
+  { value: "3 days", label: "Pro design turnaround" },
+  { value: "1", label: "Revision included" },
 ];
 
 const showcaseItems: ShowcaseItem[] = [
@@ -127,7 +127,7 @@ export function DesignersShowcaseSection() {
             className="mx-auto inline-flex items-center gap-1.5 px-4 py-1.5 text-sm"
           >
             <CheckCircle className="size-3.5" />
-            Over 2,000 projects delivered
+            Designer-in-the-loop quality
           </Badge>
 
           <h2 className="mt-6 text-2xl font-bold tracking-tight sm:text-3xl lg:text-5xl">

@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -14,11 +15,12 @@ export function GalleryCard({ name, cuisine, style, imageUrl }: GalleryCardProps
     <Card className="group overflow-hidden">
       <div className="relative aspect-[3/4] bg-muted">
         {imageUrl ? (
-          <img
+          <Image
             src={imageUrl}
             alt={`${name} menu design`}
-            className="h-full w-full object-cover"
-            loading="lazy"
+            fill
+            sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 100vw"
+            className="object-cover"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center">

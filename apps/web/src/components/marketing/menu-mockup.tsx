@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, CheckCircle, TrendingUp, Award } from "lucide-react";
 
@@ -12,11 +13,13 @@ export function MenuMockup() {
           zIndex: 1,
         }}
       >
-        <div className="aspect-[3/4] overflow-hidden rounded-xl border-2 bg-card shadow-xl">
-          <img
+        <div className="relative aspect-[3/4] overflow-hidden rounded-xl border-2 bg-card shadow-xl">
+          <Image
             src="/showcase/daily-bread.png"
             alt="AI-generated menu design for Daily Bread café"
-            className="h-full w-full object-cover"
+            fill
+            sizes="(min-width: 1024px) 224px, (min-width: 640px) 208px, 192px"
+            className="object-cover"
           />
         </div>
       </div>
@@ -29,11 +32,13 @@ export function MenuMockup() {
           zIndex: 2,
         }}
       >
-        <div className="aspect-[3/4] overflow-hidden rounded-xl border-2 bg-card shadow-2xl">
-          <img
+        <div className="relative aspect-[3/4] overflow-hidden rounded-xl border-2 bg-card shadow-2xl">
+          <Image
             src="/showcase/el-fuego.png"
             alt="AI-generated menu design for El Fuego"
-            className="h-full w-full object-cover"
+            fill
+            sizes="(min-width: 1024px) 224px, (min-width: 640px) 208px, 192px"
+            className="object-cover"
           />
         </div>
       </div>

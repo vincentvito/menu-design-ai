@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, use, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
-  ArrowRight,
   Check,
   ChevronRight,
   Download,
@@ -18,7 +17,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
@@ -618,14 +616,17 @@ export default function ResultsPage({
                     {tags.map((tag) => {
                       const isActive = selectedTags.includes(tag.instruction);
                       return (
-                        <Badge
+                        <Button
                           key={tag.label}
+                          type="button"
+                          size="sm"
                           variant={isActive ? "default" : "outline"}
-                          className="cursor-pointer select-none transition-colors"
+                          aria-pressed={isActive}
+                          className="h-7 cursor-pointer select-none rounded-full px-3 transition-colors"
                           onClick={() => toggleTag(tag.instruction)}
                         >
                           {tag.label}
-                        </Badge>
+                        </Button>
                       );
                     })}
                   </div>

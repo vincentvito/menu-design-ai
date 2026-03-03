@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 
 export interface ShowcaseItem {
@@ -41,11 +42,12 @@ export function ShowcaseCard({ item, index, total }: ShowcaseCardProps) {
       <div className="overflow-hidden rounded-xl border bg-card shadow-lg">
         <div className="relative aspect-[3/4]">
           {item.imageUrl ? (
-            <img
+            <Image
               src={item.imageUrl}
               alt={`${item.restaurantName} menu design`}
-              className="h-full w-full object-cover"
-              loading="lazy"
+              fill
+              sizes="(min-width: 1024px) 192px, 176px"
+              className="object-cover"
             />
           ) : (
             <div

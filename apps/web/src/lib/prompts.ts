@@ -458,7 +458,6 @@ export function buildColorDirective(palette: string[] | null, menuFormat: MenuFo
   if (!palette || palette.length === 0) return null;
 
   const colorDescriptions = palette.map((c) => hexToColorName(c));
-  const colorList = palette.map((c) => c.toUpperCase()).join(", ");
   const namedList = palette.map((c, i) => `${c.toUpperCase()} (${colorDescriptions[i]})`).join(", ");
 
   if (menuFormat === "text_only") {

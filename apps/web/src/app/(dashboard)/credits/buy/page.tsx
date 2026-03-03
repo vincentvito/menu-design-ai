@@ -47,7 +47,7 @@ export default function BuyCreditsPage() {
       if (result.error) {
         toast.error(result.error);
       } else if (result.url) {
-        window.location.href = result.url;
+        window.location.assign(result.url);
         return; // Don't reset purchasing state — navigating away
       }
     } catch {
