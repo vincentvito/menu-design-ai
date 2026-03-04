@@ -1,8 +1,10 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import Stripe from "stripe";
+import { isPaidMenuPackage, type PaidMenuPackage } from "@/lib/menu-packages";
+import type { MenuPackage } from "@/types/menu";
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -51,9 +53,13 @@ export async function POST(request: Request) {
     }
 
     if (metadata.type === "credit_purchase") {
-      await handleCreditPurchase(supabase, metadata, session.payment_intent as string);
+      const paymentIntent =
+        typeof session.payment_intent === "string" ? session.payment_intent : "";
+      await handleCreditPurchase(supabase, metadata, paymentIntent);
+    } else if (metadata.type === "menu_package") {
+      await handleMenuPackage(supabase, metadata, session);
     } else if (metadata.type === "menu_order") {
-      await handleMenuOrder(supabase, metadata, session);
+      await handleMenuOrderLegacy(supabase, metadata, session);
     }
   }
 
@@ -66,7 +72,7 @@ async function handleCreditPurchase(
   paymentIntent: string,
 ) {
   const userId = metadata.user_id;
-  const credits = parseInt(metadata.credits, 10);
+  const credits = Number.parseInt(metadata.credits, 10);
 
   if (!userId || !credits) {
     console.error("Missing credit purchase metadata", metadata);
@@ -76,7 +82,7 @@ async function handleCreditPurchase(
   const { data, error } = await supabase.rpc("add_credits", {
     p_user_id: userId,
     p_amount: credits,
-    p_stripe_pi: paymentIntent,
+    p_stripe_pi: paymentIntent || null,
   });
 
   if (error) {
@@ -88,32 +94,128 @@ async function handleCreditPurchase(
   }
 }
 
-async function handleMenuOrder(
+async function handleMenuPackage(
   supabase: SupabaseClient,
   metadata: Record<string, string>,
   session: Stripe.Checkout.Session,
 ) {
   const userId = metadata.user_id;
   const menuId = metadata.menu_id;
+  const packageTypeRaw = metadata.package_type;
 
-  if (!userId || !menuId) {
-    console.error("Missing menu order metadata", metadata);
+  if (!userId || !menuId || !packageTypeRaw || !isPaidMenuPackage(packageTypeRaw)) {
+    console.error("Missing/invalid menu package metadata", metadata);
     return;
   }
 
-  await supabase
+  const packageType = packageTypeRaw as PaidMenuPackage;
+  const orderState = await markOrderPaid(
+    supabase,
+    session.id,
+    packageType,
+  );
+
+  if (orderState === "missing_order" || orderState === "failed") {
+    return;
+  }
+
+  const { data: menu } = await supabase
+    .from("menus")
+    .select("status, output_package")
+    .eq("id", menuId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (!menu) {
+    console.error(`Menu not found for paid package: menu=${menuId} user=${userId}`);
+    return;
+  }
+
+  const payload: {
+    digital_unlocked: boolean;
+    output_package?: MenuPackage;
+    status?: string;
+  } = {
+    digital_unlocked: true,
+  };
+
+  if (packageType === "pro") {
+    payload.output_package = "pro";
+    payload.status = "paid";
+  } else {
+    if (menu.output_package !== "pro") {
+      payload.output_package = "digital";
+    }
+    if (menu.status === "samples_ready") {
+      payload.status = "sample_selected";
+    }
+  }
+
+  const { error: menuError } = await supabase
+    .from("menus")
+    .update(payload)
+    .eq("id", menuId)
+    .eq("user_id", userId);
+
+  if (menuError) {
+    console.error("Failed to update menu package state:", menuError);
+    return;
+  }
+
+  console.log(
+    `Menu package paid: menu=${menuId}, user=${userId}, package=${packageType}`,
+  );
+}
+
+async function handleMenuOrderLegacy(
+  supabase: SupabaseClient,
+  metadata: Record<string, string>,
+  session: Stripe.Checkout.Session,
+) {
+  await handleMenuPackage(
+    supabase,
+    {
+      ...metadata,
+      type: "menu_package",
+      package_type: "pro",
+    },
+    session,
+  );
+}
+
+async function markOrderPaid(
+  supabase: SupabaseClient,
+  stripeSessionId: string,
+  packageType: PaidMenuPackage,
+) {
+  const { data: existingOrder } = await supabase
+    .from("orders")
+    .select("id, status")
+    .eq("stripe_session_id", stripeSessionId)
+    .maybeSingle();
+
+  if (!existingOrder) {
+    console.error(`Order not found for stripe session ${stripeSessionId}`);
+    return "missing_order";
+  }
+
+  if (existingOrder.status === "paid") {
+    return "already_paid";
+  }
+
+  const { error } = await supabase
     .from("orders")
     .update({
       status: "paid",
       paid_at: new Date().toISOString(),
+      package_type: packageType,
     })
-    .eq("stripe_session_id", session.id);
+    .eq("id", existingOrder.id);
 
-  await supabase
-    .from("menus")
-    .update({ status: "paid" })
-    .eq("id", menuId)
-    .eq("user_id", userId);
+  if (error) {
+    console.error("Failed to mark order as paid:", error);
+    return "failed";
+  }
 
-  console.log(`Menu order paid: menu=${menuId}, user=${userId}`);
+  return "paid";
 }

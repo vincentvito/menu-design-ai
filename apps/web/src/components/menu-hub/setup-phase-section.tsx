@@ -10,10 +10,12 @@ import {
 } from "@/components/ui/card";
 import type { Menu, MenuData } from "@/types/menu";
 
-function getNextStepHref(menu: Menu): string {
+function getNextStepHref(menu: Menu, itemCount: number): string {
+  if (itemCount === 0) return `/menus/${menu.id}/edit`;
+  if (!menu.template_id) return `/menus/${menu.id}/style`;
   if (!menu.cuisine_type) return `/menus/${menu.id}/cuisine`;
-  if (!menu.menu_format) return `/menus/${menu.id}/format`;
-  return `/menus/${menu.id}/style`;
+  if (!menu.menu_format || !menu.page_layout) return `/menus/${menu.id}/format`;
+  return `/menus/${menu.id}/format`;
 }
 
 export function SetupPhaseSection({ menu }: { menu: Menu }) {
@@ -53,11 +55,17 @@ export function SetupPhaseSection({ menu }: { menu: Menu }) {
         )}
       </Card>
 
-      {menu.cuisine_type && (
+      {(menu.template_id || menu.cuisine_type || menu.menu_format || menu.page_layout) && (
         <div className="grid grid-cols-2 gap-4 text-sm">
+          {menu.template_id && (
+            <div>
+              <span className="text-muted-foreground">Style</span>
+              <p className="font-medium">Selected</p>
+            </div>
+          )}
           <div>
             <span className="text-muted-foreground">Cuisine</span>
-            <p className="font-medium capitalize">{menu.cuisine_type}</p>
+            <p className="font-medium capitalize">{menu.cuisine_type || "Not selected"}</p>
           </div>
           {menu.menu_format && (
             <div>
@@ -79,7 +87,7 @@ export function SetupPhaseSection({ menu }: { menu: Menu }) {
       )}
 
       <Button asChild className="w-full">
-        <Link href={getNextStepHref(menu)}>
+        <Link href={getNextStepHref(menu, itemCount)}>
           Continue Setup
           <ArrowRight className="ml-2 h-4 w-4" />
         </Link>

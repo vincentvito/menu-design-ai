@@ -1,4 +1,5 @@
 import type { MenuData, MenuFormat, PageLayout } from "@/types/menu";
+import { mapPaletteToRoles } from "@/lib/palette-roles";
 
 // ============================================================
 // Types
@@ -457,14 +458,21 @@ export function buildArtDirection(
 export function buildColorDirective(palette: string[] | null, menuFormat: MenuFormat | null): string | null {
   if (!palette || palette.length === 0) return null;
 
-  const colorDescriptions = palette.map((c) => hexToColorName(c));
-  const namedList = palette.map((c, i) => `${c.toUpperCase()} (${colorDescriptions[i]})`).join(", ");
+  const roles = mapPaletteToRoles(palette);
+  const roleLine = [
+    `Background: ${roles.background} (${hexToColorName(roles.background)})`,
+    `Primary text: ${roles.textPrimary} (${hexToColorName(roles.textPrimary)})`,
+    `Secondary text: ${roles.textSecondary} (${hexToColorName(roles.textSecondary)})`,
+    `Primary accent: ${roles.accent} (${hexToColorName(roles.accent)})`,
+    `Secondary accent: ${roles.accentAlt} (${hexToColorName(roles.accentAlt)})`,
+    `Borders/dividers: ${roles.border} (${hexToColorName(roles.border)})`,
+  ].join("; ");
 
   if (menuFormat === "text_only") {
-    return `The design's color palette is built around these colors: ${namedList}. Use the darkest color for primary text, the lightest for the background, and accent colors for headers, borders, and decorative elements. Natural tonal variations within each color family are encouraged — the palette should feel organic and sophisticated, not flat or digitally uniform.`;
+    return `Apply this exact color-role map for the menu design: ${roleLine}. Body text must use primary or secondary text colors only. Background areas should stay in the background color family. Use accent colors only for headers, ornaments, and emphasis. Natural tonal variations within each role are encouraged — the palette should feel organic and sophisticated, not flat or digitally uniform.`;
   }
 
-  return `The design's color palette is anchored to these colors: ${namedList}. Use these colors for backgrounds, text, borders, and decorative elements. Food photography should retain its natural colors — do not apply color filters to food images to match the palette. The palette colors frame and complement the food rather than dominating it. Subtle tonal gradients and shadow variations within the palette are encouraged for depth.`;
+  return `Apply this exact color-role map for the menu layout: ${roleLine}. Keep body text in the text colors and keep backgrounds in the background color family. Use accent colors for callouts, section headers, borders, and decorative elements. Food photography should retain natural colors — do not tint food to match the palette. Palette colors should frame and complement the food rather than dominating it.`;
 }
 
 export function buildColorAndMaterial(
@@ -516,6 +524,35 @@ export function buildMenuContentDescription(menuData: MenuData | null, restauran
   const featured = ctx.featuredItems.join(", ");
 
   return `This menu is for '${ctx.restaurantName}' with ${ctx.itemCount} items across ${ctx.sectionCount} sections: ${sectionDescriptions}. ${personality}${dietaryNote} The menu should display section headers that are visually distinct from item listings. Featured items (${featured}) should be given visual emphasis through larger type, a callout box, or an accompanying food image.`;
+}
+
+export function buildStrictMenuContentBlock(
+  menuData: MenuData | null,
+  restaurantName: string,
+): string {
+  if (!menuData || menuData.sections.length === 0) {
+    const fallbackName = restaurantName || "Restaurant";
+    return `STRICT MENU CONTENT SOURCE:
+Restaurant Name: ${fallbackName}
+No structured sections/items were provided.`;
+  }
+
+  const lines: string[] = [];
+  lines.push("STRICT MENU CONTENT SOURCE (AUTHORITATIVE):");
+  lines.push(`Restaurant Name: ${menuData.restaurant_name || restaurantName || "Restaurant"}`);
+  lines.push("Use this exact content with no additions, no removals, and no paraphrasing:");
+
+  menuData.sections.forEach((section, sectionIndex) => {
+    lines.push(`SECTION ${sectionIndex + 1}: ${section.name}`);
+    section.items.forEach((item, itemIndex) => {
+      const description = item.description?.trim() ? item.description.trim() : "N/A";
+      lines.push(
+        `- ITEM ${sectionIndex + 1}.${itemIndex + 1} | NAME: ${item.name} | DESCRIPTION: ${description} | PRICE: ${item.price.toFixed(2)} ${item.currency}`,
+      );
+    });
+  });
+
+  return lines.join("\n");
 }
 
 // ============================================================
@@ -603,16 +640,31 @@ export function buildQualitySuffix(menuFormat: MenuFormat | null): string {
   ].join(" ");
 }
 
-export function buildConstraintDirectives(menuFormat: MenuFormat | null): string {
+export function buildConstraintDirectives(
+  menuFormat: MenuFormat | null,
+  strictTextFidelity = false,
+): string {
   const universal = [
     "Do not include any watermarks, signatures, artist credits, or stock photo indicators on the design",
     "ALL visible text on the menu MUST be sharp, fully legible, and correctly formed — no blurred, smeared, melted, or gibberish text. Every letter must be a recognizable character. If text cannot be rendered clearly, use fewer words rather than illegible ones",
-    "Text should read as plausible English menu content — real food names, real section headers, real descriptions. No random letter combinations or nonsense words",
     "Do not generate any distorted, melted, uncanny, or anatomically incorrect food imagery",
     "Avoid generic clip-art style illustrations — all visual elements should look professionally designed and intentional",
     "Do not place text over busy photographic backgrounds without sufficient contrast — always use a solid panel, gradient overlay, or dark scrim behind text that overlays images",
     "Do not render this as a 3D scene, a photograph of a physical menu, or a mockup on a table — it must be a flat 2D graphic design only",
   ];
+
+  if (strictTextFidelity) {
+    universal.push(
+      "Text fidelity is absolute: every section header, item name, description, and price must match the provided source content exactly",
+      "Do not invent, paraphrase, summarize, reorder, or omit any provided menu text",
+      "Do not change numeric prices, decimal formatting, or currency codes",
+      "If layout space is tight, reduce decorative elements before changing any menu text",
+    );
+  } else {
+    universal.push(
+      "Text should read as plausible English menu content — real food names, real section headers, real descriptions. No random letter combinations or nonsense words",
+    );
+  }
 
   const photoSpecific = [
     "Food photography must look appetizing with natural, non-artificial coloring — no oversaturated or plasticky-looking food",
@@ -633,6 +685,10 @@ export function buildConstraintDirectives(menuFormat: MenuFormat | null): string
   }
 
   return "IMPORTANT CONSTRAINTS: " + constraints.join(". ") + ".";
+}
+
+export function buildStrictFidelityConstraints(menuFormat: MenuFormat | null): string {
+  return buildConstraintDirectives(menuFormat, true);
 }
 
 // ============================================================

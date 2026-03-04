@@ -4,25 +4,26 @@ import { useState, useEffect, useCallback, use, Fragment } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  Boxes,
   Check,
   ChevronRight,
-  Download,
   Loader2,
-  Palette,
   RefreshCw,
   Sparkles,
   AlertTriangle,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import {
   pollGeneration,
-  checkAndUpdateImages,
+  checkImageReadiness,
+  runBackgroundFidelityChecks,
   selectSample,
   generateSamples,
   generateVariations,
@@ -59,10 +60,9 @@ export default function ResultsPage({
   const [selectedImageId, setSelectedImageId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [allDone, setAllDone] = useState(false);
+  const [allVisible, setAllVisible] = useState(false);
   const [saving, setSaving] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
-  const [downloading, setDownloading] = useState(false);
-  const [pdfReady, setPdfReady] = useState(false);
 
   // Variation refinement state
   const [refineMode, setRefineMode] = useState(false);
@@ -145,34 +145,56 @@ export default function ResultsPage({
     loadGeneration();
   }, [menuId, supabase, loadHistory]);
 
-  // Poll for image completion
+  // Poll for image completion (two-phase: readiness then fidelity)
   const poll = useCallback(async () => {
     if (!generationId || allDone) return;
 
-    await checkAndUpdateImages(generationId);
+    // Phase 1: Fast check — are images ready from Replicate?
+    await checkImageReadiness(generationId);
 
+    // Fetch current state
     const result = await pollGeneration(generationId);
     setImages(result.images as AIGenerationImage[]);
 
+    if (result.allVisible && !allVisible) {
+      setAllVisible(true);
+    }
+
+    // Phase 2: If any images are in "ready" state, kick off fidelity in background
+    // (fire-and-forget — does not block UI update)
+    const hasReadyImages = result.images.some((img) => img.status === "ready");
+    if (hasReadyImages) {
+      void runBackgroundFidelityChecks(generationId);
+    }
+
     if (result.allDone && !allDone) {
       setAllDone(true);
-      // Refresh history thumbnails once images are done
+      // Refresh history thumbnails once all fidelity checks are done
       loadHistory(generationId);
     }
-  }, [generationId, allDone, loadHistory]);
+  }, [generationId, allDone, allVisible, loadHistory]);
 
   useEffect(() => {
     if (!generationId) return;
 
-    poll();
+    const kickoff = setTimeout(() => {
+      void poll();
+    }, 0);
 
+    let interval: ReturnType<typeof setInterval> | null = null;
     if (!allDone) {
-      const interval = setInterval(poll, 3000);
-      return () => clearInterval(interval);
+      interval = setInterval(() => {
+        void poll();
+      }, 3000);
     }
+
+    return () => {
+      clearTimeout(kickoff);
+      if (interval) clearInterval(interval);
+    };
   }, [generationId, allDone, poll]);
 
-  async function handleDownloadPdf() {
+  async function handleContinueToPackages() {
     if (!selectedImageId) {
       toast.error("Please select a design");
       return;
@@ -187,29 +209,8 @@ export default function ResultsPage({
       return;
     }
 
-    // Trigger PDF download
-    setDownloading(true);
-    try {
-      const response = await fetch(`/api/menus/${menuId}/pdf`);
-      if (!response.ok) throw new Error("Failed to generate PDF");
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download =
-        response.headers
-          .get("content-disposition")
-          ?.match(/filename="(.+)"/)?.[1] ?? "menu-design.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
-
-      setPdfReady(true);
-      toast.success("Your menu PDF is downloading!");
-    } catch {
-      toast.error("Failed to download PDF. Please try again.");
-    }
-    setDownloading(false);
+    toast.success("Design saved. Continue with package selection.");
+    router.push(`/menus/${menuId}/package`);
     setSaving(false);
   }
 
@@ -227,6 +228,7 @@ export default function ResultsPage({
       setGenerationId(result.generationId);
       setImages([]);
       setAllDone(false);
+      setAllVisible(false);
       setSelectedImageId(null);
       setRefineMode(false);
       toast.success("Regenerating 4 new designs...");
@@ -288,6 +290,7 @@ export default function ResultsPage({
       setGenerationId(result.generationId);
       setImages([]);
       setAllDone(false);
+      setAllVisible(false);
       setSelectedImageId(null);
       setRefineMode(false);
       setFreeTextInstruction("");
@@ -303,6 +306,7 @@ export default function ResultsPage({
     setGenerationId(historyGenId);
     setImages([]);
     setAllDone(false);
+    setAllVisible(false);
     setSelectedImageId(null);
     setRefineMode(false);
   }
@@ -330,18 +334,19 @@ export default function ResultsPage({
       <div className="mx-auto max-w-3xl space-y-6 text-center">
         <h1 className="text-2xl font-bold">No Designs Generated Yet</h1>
         <p className="text-muted-foreground">
-          Go back to the style page to generate your AI menu designs.
+          Go to format and layout to generate your AI menu designs.
         </p>
-        <Button onClick={() => router.push(`/menus/${menuId}/style`)}>
+        <Button onClick={() => router.push(`/menus/${menuId}/format`)}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Style Selection
+          Go to Format & Generate
         </Button>
       </div>
     );
   }
 
-  const completedCount = images.filter(
-    (img) => img.status === "completed",
+  const completedCount = images.filter((img) => img.status === "completed").length;
+  const selectableCount = images.filter(
+    (img) => img.status === "completed" && img.metadata?.fidelity_passed === true,
   ).length;
   const failedCount = images.filter((img) => img.status === "failed").length;
 
@@ -353,14 +358,16 @@ export default function ResultsPage({
           <h1 className="text-2xl font-bold">AI Menu Designs</h1>
           <p className="text-muted-foreground">
             {allDone
-              ? `${completedCount} designs ready${failedCount > 0 ? `, ${failedCount} failed` : ""} — pick your favorite`
-              : "Generating your designs... this takes about 30 seconds"}
+              ? `${selectableCount}/${completedCount} designs passed fidelity${failedCount > 0 ? `, ${failedCount} failed` : ""}`
+              : allVisible
+                ? "Verifying text accuracy..."
+                : "Generating your designs... this takes about 30 seconds"}
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            onClick={() => router.push(`/menus/${menuId}/style`)}
+            onClick={() => router.push(`/menus/${menuId}/format`)}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
@@ -420,22 +427,31 @@ export default function ResultsPage({
           (img, i) => {
             const image = img as AIGenerationImage | undefined;
             const isCompleted = image?.status === "completed";
+            const isReady = image?.status === "ready";
             const isFailed = image?.status === "failed";
             const isGenerating =
               !image ||
               image.status === "generating" ||
               image.status === "pending";
+            const isVisible = isCompleted || isReady;
+            const fidelityPassed = image?.metadata?.fidelity_passed === true;
+            const fidelityPending =
+              isReady || image?.metadata?.fidelity_status === "pending" || image?.metadata?.fidelity_status === "checking";
+            const isHybridConcept = image?.metadata?.hybrid_mode === true;
             const isSelected = image?.id === selectedImageId;
+            const canSelect = isCompleted && fidelityPassed;
 
             return (
               <Card
                 key={image?.id || i}
                 className={`overflow-hidden transition-all ${
-                  isCompleted ? "cursor-pointer hover:shadow-md" : ""
+                  canSelect ? "cursor-pointer hover:shadow-md" : ""
                 } ${isSelected ? "ring-2 ring-primary" : ""}`}
                 onClick={() => {
-                  if (isCompleted && image?.id) {
+                  if (canSelect && image?.id) {
                     setSelectedImageId(image.id);
+                  } else if (isCompleted && !fidelityPassed) {
+                    toast.error("This image failed text fidelity checks.");
                   }
                 }}
               >
@@ -465,7 +481,7 @@ export default function ResultsPage({
                     </div>
                   )}
 
-                  {isCompleted && image?.image_url && (
+                  {isVisible && image?.image_url && (
                     <>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
@@ -473,12 +489,31 @@ export default function ResultsPage({
                         alt={`Design variant ${(image.variant_index ?? 0) + 1}`}
                         className="aspect-[3/4] w-full object-cover"
                       />
-                      {isSelected && (
+                      {isSelected && canSelect && (
                         <div className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-primary shadow-lg">
                           <Check className="h-5 w-5 text-primary-foreground" />
                         </div>
                       )}
-                      {allDone && (
+                      <div className="absolute left-2 top-2">
+                        {fidelityPending ? (
+                          <Badge variant="secondary" className="animate-pulse">
+                            <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                            Checking text...
+                          </Badge>
+                        ) : fidelityPassed ? (
+                          <Badge className="bg-emerald-600 text-white hover:bg-emerald-600">
+                            Fidelity Pass
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive">Fidelity Failed</Badge>
+                        )}
+                      </div>
+                      {isHybridConcept && (
+                        <div className="absolute left-2 bottom-2">
+                          <Badge variant="secondary">Style Concept (Hybrid)</Badge>
+                        </div>
+                      )}
+                      {allDone && isCompleted && (
                         <button
                           className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-md bg-background/80 px-2.5 py-1.5 text-xs font-medium shadow-sm backdrop-blur-sm transition-colors hover:bg-background"
                           onClick={(e) => {
@@ -500,64 +535,20 @@ export default function ResultsPage({
       </div>
 
       {/* Action buttons */}
-      {allDone && completedCount > 0 && !refineMode && !pdfReady && (
+      {allDone && completedCount > 0 && !refineMode && (
         <Button
           size="lg"
           className="w-full"
-          disabled={!selectedImageId || saving || downloading}
-          onClick={handleDownloadPdf}
+          disabled={!selectedImageId || saving}
+          onClick={handleContinueToPackages}
         >
-          {saving || downloading ? (
+          {saving ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <Download className="mr-2 h-4 w-4" />
+            <Boxes className="mr-2 h-4 w-4" />
           )}
-          {downloading
-            ? "Preparing PDF..."
-            : "Download Your Menu PDF — Free"}
+          Continue to Packages
         </Button>
-      )}
-
-      {/* Designer upsell — shown after PDF download */}
-      {pdfReady && (
-        <Card className="border-primary/20 bg-primary/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Check className="h-5 w-5 text-primary" />
-              Your menu PDF is ready!
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Want a professional designer to perfect your menu? Get
-              print-ready files with polished typography, editable source
-              files, and 1 revision included.
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button
-                size="lg"
-                className="flex-1"
-                onClick={() => router.push(`/menus/${menuId}/order`)}
-              >
-                <Palette className="mr-2 h-4 w-4" />
-                Upgrade to Pro Design — $199
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={handleDownloadPdf}
-                disabled={downloading}
-              >
-                {downloading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Download className="mr-2 h-4 w-4" />
-                )}
-                Download Again
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       )}
 
       {/* Refinement panel */}

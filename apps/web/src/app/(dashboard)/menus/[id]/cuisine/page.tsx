@@ -108,7 +108,7 @@ export default function CuisineSelectionPage({
         </div>
         <Button
           variant="outline"
-          onClick={() => router.push(`/menus/${menuId}`)}
+          onClick={() => router.push(`/menus/${menuId}/style`)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
@@ -162,7 +162,7 @@ export default function CuisineSelectionPage({
         ) : (
           <ArrowRight className="mr-2 h-4 w-4" />
         )}
-        Continue to Format & Layout
+        Continue to Format & Generate
       </Button>
     </div>
   );

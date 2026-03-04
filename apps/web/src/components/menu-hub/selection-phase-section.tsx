@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Download, Palette } from "lucide-react";
+import { Boxes, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Menu } from "@/types/menu";
@@ -14,8 +14,8 @@ export function SelectionPhaseSection({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        You&apos;ve picked your favorite design. Download the PDF for free or
-        upgrade to have a professional designer perfect it.
+        You&apos;ve picked your favorite design. Continue to packages to choose
+        Basic (free PDF), Digital (QR + hosted menu), or Pro.
       </p>
 
       {selectedImage && (
@@ -33,20 +33,20 @@ export function SelectionPhaseSection({
 
       <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
         <Button asChild className="flex-1">
-          <Link href={`/menus/${menu.id}/results`}>
-            <Download className="mr-2 h-4 w-4" />
-            Download PDF
+          <Link href={`/menus/${menu.id}/package`}>
+            <Boxes className="mr-2 h-4 w-4" />
+            Choose Package
           </Link>
         </Button>
         <Button variant="outline" asChild className="flex-1">
-          <Link href={`/menus/${menu.id}/order`}>
-            <Palette className="mr-2 h-4 w-4" />
-            Upgrade to Pro — $199
+          <Link href={`/menus/${menu.id}/results`}>
+            <Download className="mr-2 h-4 w-4" />
+            Change Selection
           </Link>
         </Button>
       </div>
       <Button variant="ghost" asChild className="w-full">
-        <Link href={`/menus/${menu.id}/results`}>Change Selection</Link>
+        <Link href={`/menus/${menu.id}/results`}>View All Designs</Link>
       </Button>
     </div>
   );

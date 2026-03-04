@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Check, ArrowRight, ArrowLeft, Loader2, Coins, Palette } from "lucide-react";
+import { Check, ArrowRight, ArrowLeft, Loader2, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,12 +15,35 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
-import { generateSamples } from "@/app/actions/generation";
 import type { StyleTemplate, ColorPalette } from "@/types/menu";
+import { mapPaletteToRoles } from "@/lib/palette-roles";
+
+const FALLBACK_STYLE_PREVIEWS: Record<string, string> = {
+  "fine-dining": "/showcase/le-petit-bistro.png",
+  "modern-cafe": "/showcase/daily-bread.png",
+  "casual-dining": "/showcase/olive-and-thyme.png",
+  "fast-food": "/showcase/el-fuego.png",
+  "arabic-traditional": "/showcase/spice-route.png",
+  seafood: "/showcase/ember-and-oak.png",
+};
 
 function sameColorArrays(a: string[], b: string[]) {
   if (a.length !== b.length) return false;
   return a.every((color, index) => color.toLowerCase() === b[index]?.toLowerCase());
+}
+
+function PaletteRoleLegend({ colors }: { colors: string[] }) {
+  const roles = mapPaletteToRoles(colors);
+  return (
+    <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[10px] text-muted-foreground">
+      <span>BG: {roles.background}</span>
+      <span>Text: {roles.textPrimary}</span>
+      <span>Text 2: {roles.textSecondary}</span>
+      <span>Accent: {roles.accent}</span>
+      <span>Accent 2: {roles.accentAlt}</span>
+      <span>Border: {roles.border}</span>
+    </div>
+  );
 }
 
 export default function StylePage() {
@@ -41,8 +64,7 @@ export default function StylePage() {
     "#2c2c2c",
   ]);
   const [loading, setLoading] = useState(true);
-  const [generating, setGenerating] = useState(false);
-  const [creditBalance, setCreditBalance] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
   const previousTemplateRef = useRef<string | null>(null);
 
   // Load templates + menu state
@@ -65,19 +87,6 @@ export default function StylePage() {
       if (menu?.template_id) setSelectedTemplate(menu.template_id);
       if (menu?.color_palette) {
         setSelectedPaletteColors(menu.color_palette as string[]);
-      }
-
-      // Load credit balance
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        const { data: credits } = await supabase
-          .from("user_credits")
-          .select("balance")
-          .eq("user_id", user.id)
-          .single();
-        setCreditBalance(credits?.balance ?? 0);
       }
 
       setLoading(false);
@@ -155,7 +164,13 @@ export default function StylePage() {
     }
   }
 
-  async function handleGenerate() {
+  function getTemplatePreview(template: StyleTemplate) {
+    if (template.preview_url) return template.preview_url;
+    if (template.example_images?.length) return template.example_images[0];
+    return FALLBACK_STYLE_PREVIEWS[template.slug] || null;
+  }
+
+  async function handleContinue() {
     if (!selectedTemplate) {
       toast.error("Please select a style template");
       return;
@@ -167,13 +182,7 @@ export default function StylePage() {
       return;
     }
 
-    if (creditBalance !== null && creditBalance < 1) {
-      toast.error("You need at least 1 credit. Buy more credits first.");
-      router.push("/credits/buy");
-      return;
-    }
-
-    setGenerating(true);
+    setSaving(true);
 
     // Save template + palette selection
     const { error: updateError } = await supabase
@@ -187,21 +196,12 @@ export default function StylePage() {
 
     if (updateError) {
       toast.error(`Failed to save style: ${updateError.message}`);
-      setGenerating(false);
+      setSaving(false);
       return;
     }
 
-    // Trigger generation
-    const result = await generateSamples(menuId);
-
-    if (result.error) {
-      toast.error(result.error);
-      setGenerating(false);
-      return;
-    }
-
-    toast.success("Generating 4 AI menu designs! This takes about 30 seconds.");
-    router.push(`/menus/${menuId}/results`);
+    toast.success("Style saved");
+    router.push(`/menus/${menuId}/cuisine`);
   }
 
   if (loading) {
@@ -221,26 +221,16 @@ export default function StylePage() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Style & Colors</h1>
+          <h1 className="text-2xl font-bold">Choose Your Style</h1>
           <p className="text-muted-foreground">
-            Select a style and color palette, then generate 4 AI menu designs
+            Pick a visual direction first using reference images, then continue
+            with cuisine and layout
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          {creditBalance !== null && (
-            <Badge variant="outline" className="flex items-center gap-1 px-3 py-1">
-              <Coins className="h-3 w-3" />
-              {creditBalance} credits
-            </Badge>
-          )}
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/menus/${menuId}/format`)}
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-        </div>
+        <Button variant="outline" onClick={() => router.push(`/menus/${menuId}`)}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
       </div>
 
       {/* Style Selection */}
@@ -253,6 +243,7 @@ export default function StylePage() {
         >
           {templates.map((template) => {
             const isSelected = selectedTemplate === template.id;
+            const preview = getTemplatePreview(template);
             return (
               <Card
                 key={template.id}
@@ -276,7 +267,21 @@ export default function StylePage() {
                   </div>
                   <CardDescription>{template.description}</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
+                  {preview ? (
+                    <div className="overflow-hidden rounded-md border">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={preview}
+                        alt={`${template.name} style preview`}
+                        className="aspect-[3/4] w-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex aspect-[3/4] items-center justify-center rounded-md border bg-muted/50 text-xs text-muted-foreground">
+                      Preview coming soon
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <Badge variant="secondary">{template.category}</Badge>
                     {template.supports_rtl && (
@@ -297,6 +302,10 @@ export default function StylePage() {
             <Palette className="h-5 w-5" />
             Color Palette
           </h2>
+          <p className="text-xs text-muted-foreground">
+            Each palette is auto-mapped into roles: background, text, accent,
+            and border colors.
+          </p>
           <div
             className="grid gap-3 sm:grid-cols-2"
             role="radiogroup"
@@ -351,6 +360,9 @@ export default function StylePage() {
                         />
                       ))}
                     </div>
+                    <div className="mt-3">
+                      <PaletteRoleLegend colors={palette.colors} />
+                    </div>
                   </CardContent>
                 </Card>
               );
@@ -382,26 +394,29 @@ export default function StylePage() {
               </CardHeader>
               <CardContent>
                 {isCustomPalette ? (
-                  <div className="flex gap-2">
-                    {customColors.map((color, i) => (
-                      <div key={i} className="space-y-1 text-center">
-                        <input
-                          type="color"
-                          value={color}
-                          onChange={(e) => {
-                            const newColors = [...customColors];
-                            newColors[i] = e.target.value;
-                            setCustomColors(newColors);
-                            setSelectedPaletteColors(newColors);
-                          }}
-                          className="h-10 w-10 cursor-pointer rounded-md border-0 p-0"
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <span className="text-[9px] text-muted-foreground">
-                          {color}
-                        </span>
-                      </div>
-                    ))}
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      {customColors.map((color, i) => (
+                        <div key={i} className="space-y-1 text-center">
+                          <input
+                            type="color"
+                            value={color}
+                            onChange={(e) => {
+                              const newColors = [...customColors];
+                              newColors[i] = e.target.value;
+                              setCustomColors(newColors);
+                              setSelectedPaletteColors(newColors);
+                            }}
+                            className="h-10 w-10 cursor-pointer rounded-md border-0 p-0"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                          <span className="text-[9px] text-muted-foreground">
+                            {color}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <PaletteRoleLegend colors={customColors} />
                   </div>
                 ) : (
                   <p className="text-xs text-muted-foreground">
@@ -417,28 +432,25 @@ export default function StylePage() {
       <Button
         size="lg"
         className="w-full"
-        onClick={handleGenerate}
+        onClick={handleContinue}
         disabled={
           !selectedTemplate ||
           (!selectedPaletteColors && !isCustomPalette) ||
-          generating
+          saving
         }
       >
-        {generating ? (
+        {saving ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Generating AI Samples...
+            Saving Style...
           </>
         ) : (
           <>
-            Generate 4 AI Designs
+            Continue to Cuisine Selection
             <ArrowRight className="ml-2 h-4 w-4" />
           </>
         )}
       </Button>
-      <p className="text-center text-xs text-muted-foreground">
-        This costs 1 credit and generates 4 unique AI menu designs
-      </p>
     </div>
   );
 }

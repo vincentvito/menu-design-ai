@@ -20,7 +20,9 @@ export function GenerationPhaseSection({
   images: GenerationImage[];
 }) {
   const isGenerating = menu.status === "generating_samples";
-  const completedImages = images.filter((img) => img.status === "completed");
+  const visibleImages = images.filter(
+    (img) => img.status === "completed" || img.status === "ready",
+  );
 
   return (
     <div className="space-y-4">
@@ -42,11 +44,11 @@ export function GenerationPhaseSection({
       ) : (
         <>
           <p className="text-sm text-muted-foreground">
-            {completedImages.length} AI design
-            {completedImages.length !== 1 ? "s" : ""} ready for review.
+            {visibleImages.length} AI design
+            {visibleImages.length !== 1 ? "s" : ""} ready for review.
           </p>
           <div className="grid grid-cols-2 gap-3">
-            {completedImages.slice(0, 4).map((img) => (
+            {visibleImages.slice(0, 4).map((img) => (
               <Card key={img.id} className="overflow-hidden">
                 <CardContent className="p-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}

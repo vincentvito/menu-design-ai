@@ -103,7 +103,7 @@ export default async function MenuDetailPage({
               </p>
             </div>
             <Button variant="outline" asChild>
-              <Link href={`/menus/${menu.id}/style`}>
+              <Link href={`/menus/${menu.id}/format`}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Try Again
               </Link>

@@ -9,19 +9,7 @@ export type MenuPhase =
   | "fulfillment"
   | "failed";
 
-const AFTER_CUISINE: MenuStatus[] = [
-  "style_selected",
-  "generating_samples",
-  "samples_ready",
-  "sample_selected",
-  "payment_pending",
-  "paid",
-  "design_in_progress",
-  "design_complete",
-  "delivered",
-];
-const AFTER_FORMAT: MenuStatus[] = AFTER_CUISINE;
-const AFTER_STYLE: MenuStatus[] = [
+const AFTER_SETUP: MenuStatus[] = [
   "generating_samples",
   "samples_ready",
   "sample_selected",
@@ -88,19 +76,23 @@ function getSteps(menu: Menu) {
   const status = menu.status as MenuStatus;
   return [
     {
+      label: "Style",
+      done:
+        !!menu.template_id ||
+        status === "style_selected" ||
+        AFTER_SETUP.includes(status),
+    },
+    {
       label: "Cuisine",
-      done: !!menu.cuisine_type || AFTER_CUISINE.includes(status),
+      done: !!menu.cuisine_type || AFTER_SETUP.includes(status),
     },
     {
       label: "Format",
-      done: !!menu.menu_format || AFTER_FORMAT.includes(status),
-    },
-    {
-      label: "Style",
-      done: !!menu.template_id || AFTER_STYLE.includes(status),
+      done:
+        (!!menu.menu_format && !!menu.page_layout) || AFTER_SETUP.includes(status),
     },
     { label: "AI Samples", done: AFTER_AI_SAMPLES.includes(status) },
-    { label: "Download", done: AFTER_DOWNLOAD.includes(status) },
+    { label: "Package", done: AFTER_DOWNLOAD.includes(status) },
   ];
 }
 

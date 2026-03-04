@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import type { MenuData } from "@/types/menu";
+import { buildMenuDataStarter, countMenuItems } from "@/lib/menu-data";
 
 export default function EditMenuPage() {
   const router = useRouter();
@@ -24,17 +25,64 @@ export default function EditMenuPage() {
   const [menuData, setMenuData] = useState<MenuData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [parseNotice, setParseNotice] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
+      const primary = await supabase
         .from("menus")
-        .select("edited_json, restaurant_name")
+        .select("edited_json, extracted_json, restaurant_name, processing_error, ocr_model")
         .eq("id", menuId)
         .single();
 
+      let data = primary.data as
+        | {
+            edited_json: MenuData | null;
+            extracted_json: MenuData | null;
+            restaurant_name: string | null;
+            processing_error?: string | null;
+            ocr_model?: string | null;
+          }
+        | null;
+
+      if (primary.error) {
+        const fallback = await supabase
+          .from("menus")
+          .select("edited_json, extracted_json, restaurant_name")
+          .eq("id", menuId)
+          .single();
+        data = fallback.data as
+          | {
+              edited_json: MenuData | null;
+              extracted_json: MenuData | null;
+              restaurant_name: string | null;
+              processing_error?: string | null;
+              ocr_model?: string | null;
+            }
+          | null;
+      }
+
       if (data?.edited_json) {
         setMenuData(data.edited_json as MenuData);
+        if (data.ocr_model === "heuristic-parser-v1") {
+          setParseNotice(
+            "Auto extraction used a fallback parser. Please review items and prices carefully.",
+          );
+        }
+      } else if (data?.extracted_json) {
+        setMenuData(data.extracted_json as MenuData);
+        if (data.ocr_model === "heuristic-parser-v1") {
+          setParseNotice(
+            "Auto extraction used a fallback parser. Please review items and prices carefully.",
+          );
+        }
+      } else {
+        setMenuData(buildMenuDataStarter(data?.restaurant_name || "My Restaurant"));
+        setParseNotice(
+          data?.processing_error
+            ? `Automatic extraction failed: ${data.processing_error}. Add your menu items manually below to continue.`
+            : "Automatic extraction could not find menu items. Add your menu items manually below to continue.",
+        );
       }
       setLoading(false);
     }
@@ -117,6 +165,11 @@ export default function EditMenuPage() {
   }
 
   async function handleNext() {
+    if (!menuData || !canContinue) {
+      toast.error("Please add at least one section and one named menu item.");
+      return;
+    }
+
     await handleSave();
     router.push(`/menus/${menuId}/style`);
   }
@@ -132,10 +185,22 @@ export default function EditMenuPage() {
   }
 
   if (!menuData) {
-    return <div className="text-center py-16 text-muted-foreground">Menu not found</div>;
+    return <div className="py-16 text-center text-muted-foreground">Menu not found</div>;
   }
 
   const totalItems = menuData.sections.reduce((sum, s) => sum + s.items.length, 0);
+  const validItemCount = menuData.sections.reduce(
+    (sum, section) =>
+      sum + section.items.filter((item) => item.name.trim().length > 0).length,
+    0,
+  );
+  const canContinue = menuData.sections.length > 0 && validItemCount > 0;
+  const likelyStarterFallback =
+    menuData.sections.length === 1 &&
+    menuData.sections[0]?.name === "Main" &&
+    menuData.sections[0]?.items.length === 1 &&
+    menuData.sections[0]?.items[0]?.name.trim().length === 0 &&
+    countMenuItems(menuData) <= 1;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -151,11 +216,20 @@ export default function EditMenuPage() {
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save
           </Button>
-          <Button onClick={handleNext} disabled={saving}>
-            Choose Style<ArrowRight className="ml-2 h-4 w-4" />
+          <Button onClick={handleNext} disabled={saving || !canContinue}>
+            Continue Setup<ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </div>
+
+      {(parseNotice || likelyStarterFallback) && (
+        <Card className="border-amber-300 bg-amber-50/60">
+          <CardContent className="pt-6 text-sm text-amber-900">
+            {parseNotice ||
+              "Extraction was incomplete. Fill at least one item name to continue setup."}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent className="pt-6">
@@ -236,11 +310,17 @@ export default function EditMenuPage() {
         <Plus className="mr-2 h-4 w-4" />Add Section
       </Button>
 
+      {!canContinue && (
+        <p className="text-sm text-muted-foreground">
+          Add at least one menu item name to enable Continue Setup.
+        </p>
+      )}
+
       <div className="flex justify-end gap-2">
         <Button variant="outline" onClick={handleSave} disabled={saving}>
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}Save
         </Button>
-        <Button onClick={handleNext} disabled={saving}>Choose Style<ArrowRight className="ml-2 h-4 w-4" /></Button>
+        <Button onClick={handleNext} disabled={saving || !canContinue}>Continue Setup<ArrowRight className="ml-2 h-4 w-4" /></Button>
       </div>
     </div>
   );

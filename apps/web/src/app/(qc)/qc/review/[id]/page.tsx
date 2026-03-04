@@ -48,6 +48,13 @@ export default function DesignerReviewPage() {
     original_image_url: string | null;
   } | null>(null);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [selectedImageMetadata, setSelectedImageMetadata] = useState<{
+    fidelity_passed?: boolean;
+    missing_tokens?: string[];
+    changed_prices?: string[];
+    description_match_ratio?: number;
+    hybrid_mode?: boolean;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notes, setNotes] = useState("");
@@ -69,10 +76,15 @@ export default function DesignerReviewPage() {
         if (data.selected_image_id) {
           const { data: img } = await supabase
             .from("ai_generation_images")
-            .select("image_url")
+            .select("image_url, metadata")
             .eq("id", data.selected_image_id)
             .single();
           if (img?.image_url) setSelectedImageUrl(img.image_url);
+          if (img?.metadata) {
+            setSelectedImageMetadata(
+              img.metadata as typeof selectedImageMetadata,
+            );
+          }
         }
       }
       setLoading(false);
@@ -192,12 +204,45 @@ export default function DesignerReviewPage() {
           </CardHeader>
           <CardContent>
             {selectedImageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={selectedImageUrl}
-                alt="Selected AI design"
-                className="w-full rounded-lg border"
-              />
+              <div className="space-y-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={selectedImageUrl}
+                  alt="Selected AI design"
+                  className="w-full rounded-lg border"
+                />
+                {selectedImageMetadata && (
+                  <div className="rounded-md border bg-muted/30 p-3 text-xs">
+                    <p className="font-medium">
+                      Fidelity:{" "}
+                      {selectedImageMetadata.fidelity_passed ? "Passed" : "Failed"}
+                    </p>
+                    <p className="text-muted-foreground">
+                      Description match ratio:{" "}
+                      {selectedImageMetadata.description_match_ratio ?? 0}
+                    </p>
+                    {!!selectedImageMetadata.hybrid_mode && (
+                      <p className="text-muted-foreground">
+                        Hybrid style concept mode
+                      </p>
+                    )}
+                    {selectedImageMetadata.missing_tokens &&
+                      selectedImageMetadata.missing_tokens.length > 0 && (
+                        <p className="text-destructive">
+                          Missing tokens:{" "}
+                          {selectedImageMetadata.missing_tokens.join(", ")}
+                        </p>
+                      )}
+                    {selectedImageMetadata.changed_prices &&
+                      selectedImageMetadata.changed_prices.length > 0 && (
+                        <p className="text-destructive">
+                          Changed prices:{" "}
+                          {selectedImageMetadata.changed_prices.join(", ")}
+                        </p>
+                      )}
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="flex aspect-[3/4] items-center justify-center rounded-lg bg-muted">
                 <div className="space-y-2 text-center">

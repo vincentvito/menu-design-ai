@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
+import { generateSamples } from "@/app/actions/generation";
 import type { MenuData, MenuFormat, PageLayout } from "@/types/menu";
 
 const FORMAT_OPTIONS: {
@@ -133,7 +134,7 @@ export default function FormatLayoutPage({
     load();
   }, [supabase, menuId]);
 
-  async function handleContinue() {
+  async function handleGenerate() {
     if (!selectedFormat) {
       toast.error("Please select a menu format");
       return;
@@ -158,7 +159,18 @@ export default function FormatLayoutPage({
       return;
     }
 
-    router.push(`/menus/${menuId}/style`);
+    const result = await generateSamples(menuId);
+    if (result.error) {
+      toast.error(result.error);
+      if (result.error.toLowerCase().includes("credit")) {
+        router.push("/credits/buy");
+      }
+      setSaving(false);
+      return;
+    }
+
+    toast.success("Generating 4 AI menu designs! This takes about 30 seconds.");
+    router.push(`/menus/${menuId}/results`);
   }
 
   function handleCardKeySelect(
@@ -196,7 +208,7 @@ export default function FormatLayoutPage({
         <div>
           <h1 className="text-2xl font-bold">Format & Layout</h1>
           <p className="text-muted-foreground">
-            Choose how your menu should look and how many pages it needs
+            Final step: choose format and layout, then generate your AI designs
           </p>
         </div>
         <Button
@@ -321,15 +333,18 @@ export default function FormatLayoutPage({
         size="lg"
         className="w-full"
         disabled={!selectedFormat || !selectedLayout || saving}
-        onClick={handleContinue}
+        onClick={handleGenerate}
       >
         {saving ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <ArrowRight className="mr-2 h-4 w-4" />
         )}
-        Continue to Style & Colors
+        Generate 4 AI Designs
       </Button>
+      <p className="text-center text-xs text-muted-foreground">
+        This costs 1 credit and generates 4 unique options
+      </p>
     </div>
   );
 }

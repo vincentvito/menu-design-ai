@@ -16,6 +16,7 @@ export type MenuStatus =
 
 export type MenuFormat = "photo" | "balanced" | "text_only";
 export type PageLayout = "single" | "front_back" | "booklet";
+export type MenuPackage = "basic" | "digital" | "pro";
 
 export type UserRole = "customer" | "qc_reviewer" | "admin";
 
@@ -72,6 +73,9 @@ export interface Menu {
   restaurant_name: string | null;
   cuisine_type: string | null;
   locale: "en" | "ar";
+  processing_error: string | null;
+  ocr_model: string | null;
+  ocr_confidence: number | null;
   extracted_json: MenuData | null;
   edited_json: MenuData | null;
   menu_format: MenuFormat | null;
@@ -80,6 +84,12 @@ export interface Menu {
   template_id: string | null;
   selected_generation_id: string | null;
   selected_image_id: string | null;
+  output_package: MenuPackage | null;
+  digital_unlocked: boolean;
+  public_slug: string | null;
+  public_published: boolean;
+  public_visibility: "unlisted";
+  public_published_at: string | null;
   final_deliverable_urls: string[] | null;
   background_image_url: string | null;
   preview_pdf_url: string | null;
@@ -161,10 +171,19 @@ export interface AIGenerationImage {
   prompt_text: string;
   image_url: string | null;
   provider_prediction_id: string | null;
-  status: "pending" | "generating" | "completed" | "failed";
+  status: "pending" | "generating" | "ready" | "completed" | "failed";
   error_message: string | null;
   duration_ms: number | null;
   cost_usd: number | null;
+  metadata: {
+    fidelity_passed?: boolean;
+    fidelity_status?: "pending" | "checking" | "passed" | "failed" | "retrying" | "error";
+    missing_tokens?: string[];
+    changed_prices?: string[];
+    description_match_ratio?: number;
+    retry_count?: number;
+    hybrid_mode?: boolean;
+  } | null;
   created_at: string;
   completed_at: string | null;
 }
@@ -230,6 +249,7 @@ export interface Order {
   menu_id: string;
   user_id: string;
   stripe_session_id: string | null;
+  package_type: Exclude<MenuPackage, "basic"> | null;
   amount: number;
   currency: string;
   status: "pending" | "checkout_created" | "paid" | "refunded" | "failed";
