@@ -31,15 +31,15 @@ export default function LanguageSwitcher({ currentLocale }: { currentLocale: str
         EN
       </Button>
       <Button
-        onClick={() => switchLocale('es')}
+        onClick={() => switchLocale('it')}
         disabled={isPending}
-        variant={currentLocale === 'es' ? 'default' : 'ghost'}
+        variant={currentLocale === 'it' ? 'default' : 'ghost'}
         size="sm"
-        aria-pressed={currentLocale === 'es'}
-        aria-label={t('es')}
+        aria-pressed={currentLocale === 'it'}
+        aria-label={t('it')}
         className="h-8 px-2 text-xs"
       >
-        ES
+        IT
       </Button>
     </div>
   )

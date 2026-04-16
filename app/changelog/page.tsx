@@ -6,6 +6,33 @@ import { ArrowLeft } from 'lucide-react'
 
 const changelog = [
   {
+    version: '2.1.1',
+    date: '2026-04-16',
+    title: 'Dashboard polish + real menu history',
+    changes: [
+      {
+        type: 'added' as const,
+        items: [
+          'Dashboard now shows your actual generated menus pulled from the database, with real thumbnails when available',
+          '"My menus" page lists every menu design you\u2019ve generated, instead of placeholders',
+        ],
+      },
+      {
+        type: 'changed' as const,
+        items: [
+          'Recent menus now render as compact cards so more of the dashboard is usable at a glance',
+          'Empty state shown on the dashboard when you haven\u2019t generated any menus yet',
+        ],
+      },
+      {
+        type: 'fixed' as const,
+        items: [
+          'Collapsed sidebar: icons, brand mark, and upgrade button are now centered instead of cramped against the left edge',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.1.0',
     date: '2026-04-15',
     changes: [

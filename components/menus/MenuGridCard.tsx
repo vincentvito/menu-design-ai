@@ -9,10 +9,10 @@ import { Button } from '@/components/ui/button'
 import { MenuThumb } from '@/components/menus/MenuThumb'
 import { StatusPill } from '@/components/dashboard/StatusPill'
 import { timeAgo } from '@/lib/format'
-import type { Menu } from '@/lib/mock-data'
+import type { MenuSummary } from '@/lib/menus/list'
 
 interface MenuGridCardProps {
-  menu: Menu
+  menu: MenuSummary
 }
 
 export const MenuGridCard = memo(function MenuGridCard({ menu }: MenuGridCardProps) {
@@ -22,7 +22,19 @@ export const MenuGridCard = memo(function MenuGridCard({ menu }: MenuGridCardPro
   return (
     <Card className="border-brand-border bg-card overflow-hidden p-0 transition-all hover:shadow-md">
       <div className="relative">
-        <MenuThumb menu={menu} />
+        {menu.thumbUrl ? (
+          <div className="bg-g50 relative aspect-[4/5] w-full overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={menu.thumbUrl}
+              alt=""
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </div>
+        ) : (
+          <MenuThumb menu={menu} />
+        )}
         <div className="absolute top-3 left-3">
           <StatusPill status={menu.status} />
         </div>

@@ -5,10 +5,10 @@ import { Card } from '@/components/ui/card'
 import { MenuThumb } from '@/components/menus/MenuThumb'
 import { StatusPill } from './StatusPill'
 import { timeAgo } from '@/lib/format'
-import type { Menu } from '@/lib/mock-data'
+import type { MenuSummary } from '@/lib/menus/list'
 
 interface MenuCardProps {
-  menu: Menu
+  menu: MenuSummary
   href?: string
 }
 
@@ -17,25 +17,33 @@ export const MenuCard = memo(function MenuCard({ menu, href }: MenuCardProps) {
 
   return (
     <Link href={link} className="group block">
-      <Card className="border-brand-border bg-card overflow-hidden transition-all group-hover:shadow-md">
-        <div className="relative">
-          <MenuThumb menu={menu} />
-          <div className="absolute top-3 left-3">
+      <Card className="border-brand-border bg-card flex flex-row items-center gap-3 overflow-hidden p-3 transition-all group-hover:shadow-md">
+        <div className="relative aspect-[3/4] w-14 shrink-0 overflow-hidden rounded-md">
+          {menu.thumbUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={menu.thumbUrl}
+              alt=""
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <MenuThumb menu={menu} size="sm" className="h-full w-full" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-display text-text truncate text-sm font-semibold">{menu.name}</h3>
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
             <StatusPill status={menu.status} />
+            <span className="text-text2 truncate text-xs">
+              {menu.style} · {menu.itemCount} items · {timeAgo(menu.updatedAt)}
+            </span>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-3 p-4">
-          <div className="min-w-0">
-            <h3 className="font-display text-text truncate text-sm font-semibold">{menu.name}</h3>
-            <p className="text-text2 mt-0.5 text-xs">
-              {menu.style} · {menu.itemCount} items · Updated {timeAgo(menu.updatedAt)}
-            </p>
-          </div>
-          <MoveRight
-            aria-hidden="true"
-            className="text-text3 size-4 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:text-current"
-          />
-        </div>
+        <MoveRight
+          aria-hidden="true"
+          className="text-text3 size-4 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:text-current"
+        />
       </Card>
     </Link>
   )

@@ -36,10 +36,13 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="bg-sidebar border-sidebar-border border-r">
-      <SidebarHeader className="p-4">
-        <Link href="/" className="group/brand flex items-center gap-2">
+      <SidebarHeader className="p-4 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:p-2">
+        <Link
+          href="/"
+          className="group/brand flex items-center gap-2 group-data-[collapsible=icon]:justify-center"
+        >
           <BrandMark size="md" className="text-white group-data-[collapsible=icon]:hidden" />
-          <div className="bg-amber text-pill-amber-fg hidden h-8 w-8 shrink-0 items-center justify-center rounded-md text-sm font-bold group-data-[collapsible=icon]:flex">
+          <div className="bg-amber text-pill-amber-fg hidden size-8 shrink-0 items-center justify-center rounded-md text-sm font-bold group-data-[collapsible=icon]:flex">
             M
           </div>
         </Link>
@@ -48,10 +51,10 @@ export function AppSidebar() {
         </p>
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
+      <SidebarContent className="px-2 group-data-[collapsible=icon]:px-0">
+        <SidebarGroup className="group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:py-2">
+          <SidebarGroupContent className="group-data-[collapsible=icon]:w-auto">
+            <SidebarMenu className="group-data-[collapsible=icon]:gap-1.5">
               {items.map((item) => {
                 const active = isActive(item.href)
                 return (
@@ -61,13 +64,14 @@ export function AppSidebar() {
                       tooltip={item.label}
                       className={cn(
                         'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground h-9',
+                        'group-data-[collapsible=icon]:justify-center',
                         active && 'bg-sidebar-accent text-sidebar-accent-foreground',
                       )}
                       data-active={active}
                     >
                       <Link href={item.href}>
                         <item.Icon className="size-4" />
-                        <span>{item.label}</span>
+                        <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -78,12 +82,16 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-3 group-data-[collapsible=icon]:p-2">
+      <SidebarFooter className="p-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:p-2">
         <Link
           href="/dashboard/billing"
-          className="bg-sidebar-accent/40 hover:bg-sidebar-accent border-sidebar-border/50 group/plan flex items-center gap-3 rounded-lg border p-3 transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-2"
+          aria-label={`${t('plan')} — ${t('upgrade')}`}
+          className={cn(
+            'bg-sidebar-accent/40 hover:bg-sidebar-accent border-sidebar-border/50 group/plan flex items-center gap-3 rounded-lg border p-3 transition-colors',
+            'group-data-[collapsible=icon]:bg-amber group-data-[collapsible=icon]:hover:bg-amber group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:border-0 group-data-[collapsible=icon]:p-0',
+          )}
         >
-          <div className="bg-amber text-pill-amber-fg flex h-8 w-8 shrink-0 items-center justify-center rounded-md">
+          <div className="bg-amber text-pill-amber-fg flex size-8 shrink-0 items-center justify-center rounded-md group-data-[collapsible=icon]:size-full group-data-[collapsible=icon]:bg-transparent">
             <Crown className="size-4" />
           </div>
           <div className="flex-1 group-data-[collapsible=icon]:hidden">

@@ -1,0 +1,417 @@
+{
+  "LanguageSwitcher": {
+    "label": "Lingua",
+    "en": "Inglese",
+    "it": "Italiano"
+  },
+  "Auth": {
+    "signIn": "Accedi",
+    "sendCodePrompt": "Inserisci la tua email. Ti inviamo un codice a 6 cifre.",
+    "emailLabel": "Email",
+    "sendCode": "Inviami un codice",
+    "back": "Indietro",
+    "checkEmail": "Controlla la tua email",
+    "codeSent": "Abbiamo inviato un codice a 6 cifre a <email></email>",
+    "noCode": "Non l'hai ricevuto?",
+    "resend": "Reinvia",
+    "terms": "Continuando accetti i nostri <tos>Termini</tos> e la <privacy>Privacy Policy</privacy>.",
+    "loading": "Caricamento…",
+    "errors": {
+      "sendFailed": "Impossibile inviare il codice. Controlla l'email e riprova.",
+      "invalidCode": "Questo codice non corrisponde. Controlla la tua casella e riprova.",
+      "verifyFailed": "Impossibile verificare il codice. Riprova o richiedine uno nuovo."
+    }
+  },
+  "Nav": {
+    "howItWorks": "Come funziona",
+    "samples": "Esempi",
+    "pricing": "Prezzi",
+    "signIn": "Accedi",
+    "startTrial": "Prova gratis",
+    "openMenu": "Apri menu"
+  },
+  "Landing": {
+    "hero": {
+      "eyebrow": "Designer di menu con IA · beta",
+      "title": "Il menu del tuo ristorante,",
+      "titleHighlight": "progettato dall'IA",
+      "description": "Carica un PDF, una foto o una lista di piatti. In meno di 60 secondi ottieni un menu stampabile pronto per la produzione e un menu QR ospitato — senza designer.",
+      "ctaPrimary": "Progetta il mio menu — gratis",
+      "ctaSecondary": "Vedi esempi",
+      "proof": "Gratis durante la beta privata · senza carta di credito"
+    },
+    "how": {
+      "label": "Come funziona",
+      "title": "Da menu scansionato a pronto-per-stampa in meno di un minuto",
+      "steps": {
+        "upload": {
+          "title": "Carica il tuo menu",
+          "description": "PDF, foto, CSV o incolla il testo. Estraiamo ogni piatto, prezzo e descrizione."
+        },
+        "style": {
+          "title": "Scegli il tuo stile",
+          "description": "Quattro varianti progettate dall'IA adattate alla tua cucina — dal audace al classico vintage."
+        },
+        "ship": {
+          "title": "Scarica, stampa, pubblica",
+          "description": "PDF pronto per la stampa e un menu QR ospitato che i tuoi clienti possono scansionare."
+        }
+      }
+    },
+    "samples": {
+      "label": "Design di esempio",
+      "title": "Quattro stili distintivi",
+      "description": "Ogni menu riceve quattro varianti progettate dall'IA. Scegli quella che si abbina al tuo ristorante."
+    },
+    "pricing": {
+      "label": "Prezzi",
+      "title": "Un menu. Un prezzo fisso. Aggiornamenti illimitati.",
+      "description": "Cancella quando vuoi. Tutti i piani includono modifiche illimitate, design con brand e analitiche QR in tempo reale.",
+      "perMonth": "/mese",
+      "badge": "Più popolare",
+      "tiers": {
+        "digital": {
+          "name": "Menu QR Digitale",
+          "tagline": "Menu QR ospitato + modifiche in diretta",
+          "feature1": "Modifiche al menu illimitate",
+          "feature2": "Analitiche QR in tempo reale",
+          "feature3": "URL con brand /menu/tuo-slug"
+        },
+        "physical": {
+          "name": "Menu Fisico",
+          "tagline": "Progettato dall'IA, PDF pronto per la stampa",
+          "feature1": "4 varianti di design IA",
+          "feature2": "Esportazione PDF pronta CMYK",
+          "feature3": "Tipografia con brand"
+        },
+        "both": {
+          "name": "Fisico + QR",
+          "tagline": "Entrambi i formati e altro",
+          "feature1": "Entrambi i formati di menu",
+          "feature2": "Pack di contenuti social",
+          "feature3": "Supporto multi-sede"
+        }
+      },
+      "cta": "Prova gratis"
+    },
+    "cta": {
+      "title": "Inizia il tuo primo menu, gratis",
+      "description": "Gratis durante la beta privata. Senza carta di credito.",
+      "button": "Progetta il mio menu →"
+    },
+    "footer": {
+      "tagline": "MenuAI — Menu per ristoranti, progettati dall'IA.",
+      "copyright": "© {year} MenuAI. Tutti i diritti riservati.",
+      "product": "Prodotto",
+      "company": "Azienda",
+      "legal": "Legale",
+      "links": {
+        "features": "Funzionalità",
+        "pricing": "Prezzi",
+        "samples": "Esempi",
+        "about": "Chi siamo",
+        "contact": "Contatti",
+        "changelog": "Novità",
+        "terms": "Termini",
+        "privacy": "Privacy"
+      }
+    }
+  },
+  "Dashboard": {
+    "greetingMorning": "Buongiorno, {name}",
+    "greetingAfternoon": "Buon pomeriggio, {name}",
+    "greetingEvening": "Buonasera, {name}",
+    "subtitle": "Ecco cosa sta succedendo con i tuoi menu oggi.",
+    "viewQr": "Visualizza menu QR",
+    "newMenu": "Nuovo menu",
+    "stats": {
+      "scans": "Scansioni QR questo mese",
+      "topItem": "Piatto più visto",
+      "menusGenerated": "Menu generati",
+      "posts": "Post social pronti",
+      "creditsLeft": "{count} credito rimanente",
+      "scheduled": "{days} giorni programmati"
+    },
+    "recentMenus": "Menu recenti",
+    "quickActions": "Azioni rapide",
+    "actions": {
+      "seasonal": {
+        "title": "Aggiornamento stagionale",
+        "description": "Genera una variante primaverile dal tuo menu attuale in un clic."
+      },
+      "photos": {
+        "title": "12 piatti senza foto",
+        "description": "Aggiungi foto generate dall'IA per ogni piatto senza una.",
+        "cta": "Aggiungi per $29"
+      },
+      "designer": {
+        "title": "Revisione del designer",
+        "description": "Un designer professionista perfeziona il tuo menu in 48 ore.",
+        "cta": "Richiedi · $199"
+      }
+    },
+    "analytics": {
+      "title": "Analitiche dei piatti",
+      "item": "Piatto",
+      "category": "Categoria",
+      "views": "Visualizzazioni",
+      "trend": "Tendenza"
+    },
+    "signOut": "Esci",
+    "settings": "Impostazioni",
+    "accountMenu": "Menu account",
+    "loading": "Caricamento…"
+  },
+  "Menus": {
+    "title": "I miei menu",
+    "subtitle": "Ogni menu che hai generato. Modifica, duplica o invia in stampa.",
+    "new": "Nuovo menu",
+    "empty": {
+      "title": "Ancora nessun menu",
+      "description": "Carica un PDF, una foto o una lista di piatti. Lo trasformiamo in un menu progettato.",
+      "cta": "Crea il mio primo menu"
+    },
+    "filters": {
+      "all": "Tutti",
+      "active": "Attivi",
+      "draft": "Bozze",
+      "printReady": "Pronti per la stampa"
+    },
+    "card": {
+      "itemCount": "{count} piatti",
+      "edit": "Modifica"
+    }
+  },
+  "QR": {
+    "title": "Codici QR",
+    "subtitle": "Un QR per sede. Misura le scansioni, cambia menu senza ristampare.",
+    "download": "Scarica kit",
+    "upgrade": "Aggiorna",
+    "previewLabel": "Anteprima QR per {name} · si rigenera alla pubblicazione",
+    "previewBadge": "Anteprima",
+    "addLocation": "Aggiungi sede",
+    "addLocationTagline": "Misura le scansioni per sede con il piano Fisico + QR.",
+    "analytics": {
+      "title": "Ultimi 7 giorni",
+      "peakHour": "Ora di punta",
+      "avgSession": "Sessione media",
+      "topItem": "Piatto più visto",
+      "unique": "Visitatori unici",
+      "days": ["Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"]
+    },
+    "status": {
+      "active": "Attivo",
+      "paused": "In pausa"
+    },
+    "scans": "{count} scansioni"
+  },
+  "Social": {
+    "title": "Contenuti social",
+    "subtitle": "Post generati dall'IA che si abbinano allo stile del tuo menu.",
+    "generate": "Genera altri",
+    "exportZip": "Esporta ZIP",
+    "filters": {
+      "all": "Tutti",
+      "instagram": "Instagram",
+      "story": "Storie"
+    },
+    "post": {
+      "platform": {
+        "instagram": "Instagram",
+        "story": "Storia"
+      }
+    }
+  },
+  "Wizard": {
+    "title": "Crea un nuovo menu",
+    "subtitle": "Cinque passi veloci. Meno di un minuto.",
+    "back": "Indietro",
+    "next": "Avanti",
+    "finish": "Scarica e pubblica",
+    "exit": "Esci dalla procedura guidata",
+    "stepLabel": "Passo {current} di {total}",
+    "toast": {
+      "published": {
+        "title": "Il tuo menu è pronto",
+        "description": "PDF pronto per la stampa + menu QR generati."
+      }
+    },
+    "blocked": {
+      "upload": "Carica o incolla un menu per continuare.",
+      "style": "Aggiungi nome, cucina e scegli uno stile.",
+      "design": "Scegli una variante di design.",
+      "export": "Scegli almeno un'opzione di esportazione."
+    },
+    "steps": {
+      "upload": { "title": "Input menu", "short": "Input" },
+      "style": { "title": "Profilo e stile", "short": "Stile" },
+      "enrich": { "title": "Arricchimento IA", "short": "IA" },
+      "design": { "title": "Varianti di design", "short": "Design" },
+      "export": { "title": "Esporta", "short": "Esporta" }
+    },
+    "upload": {
+      "title": "Porta il tuo menu",
+      "description": "PDF, foto, o incolla il testo. Estraiamo ogni piatto in secondi.",
+      "drop": "Trascina un PDF o una foto qui",
+      "browse": "o clicca per caricare",
+      "mobileDrop": "Scatta una foto o scegli un file",
+      "mobileBrowse": "Estraiamo ogni piatto.",
+      "alt": {
+        "paste": "Incolla testo",
+        "csv": "Importa CSV",
+        "manual": "Inserimento manuale",
+        "url": "Da URL"
+      },
+      "extracting": "Estrazione piatti…",
+      "extracted": "Estratti {count} piatti",
+      "table": {
+        "item": "Piatto",
+        "category": "Categoria",
+        "price": "Prezzo",
+        "description": "Descrizione",
+        "tags": "Etichette"
+      },
+      "legend": {
+        "title": "Etichette dietetiche",
+        "V": "Vegetariano",
+        "VG": "Vegano",
+        "GF": "Senza glutine",
+        "DF": "Senza latticini",
+        "NF": "Senza frutta secca"
+      }
+    },
+    "style": {
+      "title": "Parlaci del tuo ristorante",
+      "description": "Lo usiamo per adattare il design alla tua cucina e atmosfera.",
+      "restaurantName": "Nome del ristorante",
+      "cuisineLabel": "Cucina",
+      "cuisines": {
+        "italian": "Italiana",
+        "french": "Francese",
+        "japanese": "Giapponese",
+        "mexican": "Messicana",
+        "american": "Americana",
+        "mediterranean": "Mediterranea",
+        "indian": "Indiana",
+        "other": "Altra"
+      },
+      "galleryTitle": "Scegli uno stile",
+      "gallery": {
+        "typography": { "name": "Solo tipografia", "tagline": "Senza foto, tipo forte" },
+        "minimal": { "name": "Minimale elegante", "tagline": "Spazio, serif corsivo" },
+        "vintage": { "name": "Classico vintage", "tagline": "Pergamena, incisione" },
+        "editorial": { "name": "Editoriale", "tagline": "Colonne da rivista" },
+        "accented": { "name": "Foto accentata", "tagline": "Immagini protagoniste" },
+        "full": { "name": "Foto completa", "tagline": "Immagine per piatto" }
+      },
+      "photoNudge": "\"Foto completa\" richiede un'immagine per piatto. Mancano {missing} foto — aggiungile al passo 3 o scegli uno stile più leggero.",
+      "paletteTitle": "Palette colori"
+    },
+    "enrich": {
+      "title": "Lascia che l'IA perfezioni i dettagli",
+      "description": "Perfeziona le descrizioni, rileva le etichette dietetiche e metti in risalto i tuoi piatti migliori.",
+      "toggles": {
+        "descriptions": {
+          "title": "Genera descrizioni automaticamente",
+          "description": "Scrivi una breve descrizione per ogni piatto che ne è privo."
+        },
+        "dietary": {
+          "title": "Rilevamento etichette dietetiche",
+          "description": "Rileva V, VG, GF, DF, NF dalla tua lista di ingredienti."
+        },
+        "chef": {
+          "title": "Selezione dello chef",
+          "description": "Segna i tuoi piatti con margine migliore come in evidenza."
+        }
+      },
+      "addOnsTitle": "Extra",
+      "addOns": {
+        "language": {
+          "title": "Multi-lingua",
+          "description": "Traduci il tuo menu in inglese, francese o italiano.",
+          "price": "$29 · pagamento unico"
+        },
+        "photos": {
+          "title": "Foto dei piatti con IA",
+          "description": "Genera foto protagoniste per i piatti che ne sono privi.",
+          "price": "$29 · pagamento unico"
+        }
+      },
+      "add": "Aggiungi",
+      "added": "Aggiunto"
+    },
+    "design": {
+      "title": "Le tue quattro varianti",
+      "description": "Quattro varianti per {restaurant}. Scegline una — potrai perfezionarla dopo.",
+      "generating": "Costruzione anteprime…",
+      "variations": {
+        "minimal": { "name": "Minimale elegante", "tagline": "Spazio · serif corsivo" },
+        "bold": { "name": "Audace e drammatico", "tagline": "Scuro · accenti ambra" },
+        "photo": { "name": "Foto-centrico", "tagline": "Immagini protagoniste" },
+        "vintage": { "name": "Classico vintage", "tagline": "Pergamena · incisione" }
+      },
+      "selected": "Selezionato",
+      "upsellTitle": "Vuoi che un designer lo perfezioni?",
+      "upsellDescription": "Un designer professionista lo perfeziona. Consegna in 48h.",
+      "upsellCta": "Revisione del designer · $199"
+    },
+    "export": {
+      "title": "Invialo",
+      "description": "Scegli ciò di cui hai bisogno. Puoi tornare ed esportare altro in seguito.",
+      "options": {
+        "pdf": {
+          "name": "PDF pronto per la stampa",
+          "description": "PDF CMYK con margini, pronto per la tipografia."
+        },
+        "qr": {
+          "name": "Menu QR digitale",
+          "description": "Menu ospitato su menuai.app/tuo-slug con aggiornamenti in diretta."
+        },
+        "social": {
+          "name": "Pack social media",
+          "description": "12 post pronti per Instagram e template per storie."
+        },
+        "kit": {
+          "name": "Kit codici QR",
+          "description": "Tavoli, adesivi per vetrine, QR da biglietto da visita."
+        },
+        "fulfillment": {
+          "name": "Stampa e consegna",
+          "description": "Stampiamo e consegniamo 50 copie a domicilio."
+        },
+        "translations": {
+          "name": "Traduzioni",
+          "description": "Genera versioni EN / FR / IT di questo menu."
+        }
+      },
+      "included": "Incluso",
+      "addOn": "Extra",
+      "select": "Seleziona",
+      "selected": "Selezionato"
+    }
+  },
+  "Sidebar": {
+    "brand": "Restaurant Studio",
+    "dashboard": "Pannello",
+    "create": "Crea menu",
+    "menus": "I miei menu",
+    "social": "Contenuti social",
+    "qr": "Codici QR",
+    "plan": "Piano",
+    "upgrade": "Aggiorna"
+  },
+  "Changelog": {
+    "title": "Cronologia modifiche",
+    "description": "Tutto ciò che è stato pubblicato su MenuAI.",
+    "backHome": "Torna alla home",
+    "latest": "Ultimo",
+    "types": {
+      "added": "Aggiunto",
+      "changed": "Modificato",
+      "fixed": "Corretto",
+      "removed": "Rimosso"
+    },
+    "moreHistory": "Cerchi più cronologia?",
+    "viewGithub": "Vedi la cronologia completa su GitHub"
+  }
+}
