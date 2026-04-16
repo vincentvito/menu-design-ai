@@ -1,0 +1,417 @@
+{
+  "LanguageSwitcher": {
+    "label": "Language",
+    "en": "English",
+    "es": "Spanish"
+  },
+  "Auth": {
+    "signIn": "Sign in",
+    "sendCodePrompt": "Enter your email. We'll send you a 6-digit login code.",
+    "emailLabel": "Email",
+    "sendCode": "Send me a code",
+    "back": "Back",
+    "checkEmail": "Check your email",
+    "codeSent": "We sent a 6-digit code to <email></email>",
+    "noCode": "Didn't receive it?",
+    "resend": "Resend",
+    "terms": "By continuing you agree to our <tos>Terms</tos> and <privacy>Privacy Policy</privacy>.",
+    "loading": "Loading…",
+    "errors": {
+      "sendFailed": "Couldn't send the code. Check your email and try again.",
+      "invalidCode": "That code didn't match. Check your inbox and try again.",
+      "verifyFailed": "Couldn't verify the code. Try again or request a new one."
+    }
+  },
+  "Nav": {
+    "howItWorks": "How it works",
+    "samples": "Samples",
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "startTrial": "Start free trial",
+    "openMenu": "Open menu"
+  },
+  "Landing": {
+    "hero": {
+      "eyebrow": "AI menu designer · beta",
+      "title": "Your restaurant menu,",
+      "titleHighlight": "beautifully designed by AI",
+      "description": "Upload a PDF, photo, or list of dishes. In under 60 seconds, get a print-ready designed menu and a hosted QR menu — no designer required.",
+      "ctaPrimary": "Design my menu — free",
+      "ctaSecondary": "See samples",
+      "proof": "Free during invite-only beta · no card required"
+    },
+    "how": {
+      "label": "How it works",
+      "title": "From scanned menu to print-ready in under a minute",
+      "steps": {
+        "upload": {
+          "title": "Upload your menu",
+          "description": "PDF, photo, CSV, or paste the text. We pull out every dish, price, and description."
+        },
+        "style": {
+          "title": "Pick your style",
+          "description": "Four AI-designed variations tuned to your cuisine — from bold and dramatic to classic vintage."
+        },
+        "ship": {
+          "title": "Download, print, go live",
+          "description": "Print-ready PDF plus a hosted QR menu your guests can scan at the table."
+        }
+      }
+    },
+    "samples": {
+      "label": "Sample designs",
+      "title": "Four signature styles",
+      "description": "Every menu gets four AI-designed variations. Pick the one that fits your restaurant."
+    },
+    "pricing": {
+      "label": "Pricing",
+      "title": "One menu. One flat price. Unlimited updates.",
+      "description": "Cancel anytime. Every plan includes unlimited edits, brand-matched designs, and live QR analytics.",
+      "perMonth": "/mo",
+      "badge": "Most popular",
+      "tiers": {
+        "digital": {
+          "name": "Digital QR menu",
+          "tagline": "Hosted QR menu + live updates",
+          "feature1": "Unlimited menu edits",
+          "feature2": "Real-time QR analytics",
+          "feature3": "Branded /menu/your-slug URL"
+        },
+        "physical": {
+          "name": "Physical menu",
+          "tagline": "AI-designed, print-ready PDF",
+          "feature1": "4 AI design variations",
+          "feature2": "CMYK-ready PDF export",
+          "feature3": "Brand-matched typography"
+        },
+        "both": {
+          "name": "Physical + QR",
+          "tagline": "Both formats plus extras",
+          "feature1": "Both menu formats",
+          "feature2": "Social media content pack",
+          "feature3": "Multi-location support"
+        }
+      },
+      "cta": "Start free trial"
+    },
+    "cta": {
+      "title": "Start your first menu, free",
+      "description": "Free during invite-only beta. No card required.",
+      "button": "Design my menu →"
+    },
+    "footer": {
+      "tagline": "MenuAI — Restaurant menus, designed by AI.",
+      "copyright": "© {year} MenuAI. All rights reserved.",
+      "product": "Product",
+      "company": "Company",
+      "legal": "Legal",
+      "links": {
+        "features": "Features",
+        "pricing": "Pricing",
+        "samples": "Samples",
+        "about": "About",
+        "contact": "Contact",
+        "changelog": "Changelog",
+        "terms": "Terms",
+        "privacy": "Privacy"
+      }
+    }
+  },
+  "Dashboard": {
+    "greetingMorning": "Good morning, {name}",
+    "greetingAfternoon": "Good afternoon, {name}",
+    "greetingEvening": "Good evening, {name}",
+    "subtitle": "Here's what's happening with your menus today.",
+    "viewQr": "View QR menu",
+    "newMenu": "New menu",
+    "stats": {
+      "scans": "QR scans this month",
+      "topItem": "Top viewed item",
+      "menusGenerated": "Menus generated",
+      "posts": "Social posts ready",
+      "creditsLeft": "{count} credit remaining",
+      "scheduled": "{days} days scheduled"
+    },
+    "recentMenus": "Recent menus",
+    "quickActions": "Quick actions",
+    "actions": {
+      "seasonal": {
+        "title": "Seasonal refresh",
+        "description": "Generate a spring variant from your current menu in one click."
+      },
+      "photos": {
+        "title": "12 items missing photos",
+        "description": "Add AI-generated photos for every dish without one.",
+        "cta": "Add for $29"
+      },
+      "designer": {
+        "title": "Designer revision",
+        "description": "A professional designer refines your menu in 48 hours.",
+        "cta": "Request · $199"
+      }
+    },
+    "analytics": {
+      "title": "Item analytics",
+      "item": "Item",
+      "category": "Category",
+      "views": "Views",
+      "trend": "Trend"
+    },
+    "signOut": "Sign out",
+    "settings": "Settings",
+    "accountMenu": "Account menu",
+    "loading": "Loading…"
+  },
+  "Menus": {
+    "title": "My menus",
+    "subtitle": "Every menu you've generated. Edit, duplicate, or send to print.",
+    "new": "New menu",
+    "empty": {
+      "title": "No menus yet",
+      "description": "Upload a PDF, photo, or list of dishes. We'll turn it into a designed menu.",
+      "cta": "Create your first menu"
+    },
+    "filters": {
+      "all": "All",
+      "active": "Active",
+      "draft": "Drafts",
+      "printReady": "Print-ready"
+    },
+    "card": {
+      "itemCount": "{count} items",
+      "edit": "Edit"
+    }
+  },
+  "QR": {
+    "title": "QR codes",
+    "subtitle": "One QR per location. Track scans, swap menus without reprinting.",
+    "download": "Download kit",
+    "upgrade": "Upgrade",
+    "previewLabel": "QR code preview for {name} · regenerated on publish",
+    "previewBadge": "Preview",
+    "addLocation": "Add location",
+    "addLocationTagline": "Track scans per location on the Physical + QR plan.",
+    "analytics": {
+      "title": "Last 7 days",
+      "peakHour": "Peak hour",
+      "avgSession": "Avg session",
+      "topItem": "Top item",
+      "unique": "Unique visitors",
+      "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused"
+    },
+    "scans": "{count} scans"
+  },
+  "Social": {
+    "title": "Social content",
+    "subtitle": "AI-generated posts that match your menu's style.",
+    "generate": "Generate more",
+    "exportZip": "Export ZIP",
+    "filters": {
+      "all": "All",
+      "instagram": "Instagram",
+      "story": "Stories"
+    },
+    "post": {
+      "platform": {
+        "instagram": "Instagram",
+        "story": "Story"
+      }
+    }
+  },
+  "Wizard": {
+    "title": "Create a new menu",
+    "subtitle": "Five quick steps. Under a minute.",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Download & publish",
+    "exit": "Exit wizard",
+    "stepLabel": "Step {current} of {total}",
+    "toast": {
+      "published": {
+        "title": "Your menu is ready",
+        "description": "Print-ready PDF + QR menu generated."
+      }
+    },
+    "blocked": {
+      "upload": "Upload or paste a menu to continue.",
+      "style": "Add a restaurant name, cuisine, and pick a style.",
+      "design": "Pick a design variation.",
+      "export": "Pick at least one export option."
+    },
+    "steps": {
+      "upload": { "title": "Menu input", "short": "Input" },
+      "style": { "title": "Profile & style", "short": "Style" },
+      "enrich": { "title": "AI enrichment", "short": "Enrich" },
+      "design": { "title": "Design variations", "short": "Design" },
+      "export": { "title": "Export", "short": "Export" }
+    },
+    "upload": {
+      "title": "Bring in your menu",
+      "description": "PDF, photo, or just paste the text. We extract every dish in seconds.",
+      "drop": "Drop a PDF or photo here",
+      "browse": "or browse to upload",
+      "mobileDrop": "Take a photo or choose a file",
+      "mobileBrowse": "We'll extract every dish.",
+      "alt": {
+        "paste": "Paste text",
+        "csv": "Import CSV",
+        "manual": "Manual entry",
+        "url": "From URL"
+      },
+      "extracting": "Extracting items…",
+      "extracted": "Extracted {count} items",
+      "table": {
+        "item": "Item",
+        "category": "Category",
+        "price": "Price",
+        "description": "Description",
+        "tags": "Tags"
+      },
+      "legend": {
+        "title": "Dietary tags",
+        "V": "Vegetarian",
+        "VG": "Vegan",
+        "GF": "Gluten-free",
+        "DF": "Dairy-free",
+        "NF": "Nut-free"
+      }
+    },
+    "style": {
+      "title": "Tell us about your restaurant",
+      "description": "We use this to tune the design to your cuisine and vibe.",
+      "restaurantName": "Restaurant name",
+      "cuisineLabel": "Cuisine",
+      "cuisines": {
+        "italian": "Italian",
+        "french": "French",
+        "japanese": "Japanese",
+        "mexican": "Mexican",
+        "american": "American",
+        "mediterranean": "Mediterranean",
+        "indian": "Indian",
+        "other": "Other"
+      },
+      "galleryTitle": "Pick a style",
+      "gallery": {
+        "typography": { "name": "Typography only", "tagline": "No photos, strong type" },
+        "minimal": { "name": "Minimal elegant", "tagline": "Whitespace, serif italic" },
+        "vintage": { "name": "Classic vintage", "tagline": "Parchment, engraved" },
+        "editorial": { "name": "Editorial", "tagline": "Magazine columns" },
+        "accented": { "name": "Photo accented", "tagline": "A few hero images" },
+        "full": { "name": "Full photo", "tagline": "Image per dish" }
+      },
+      "photoNudge": "\"Full photo\" needs an image per dish. You're currently missing {missing} photos — add them in step 3 or pick a lighter style.",
+      "paletteTitle": "Color palette"
+    },
+    "enrich": {
+      "title": "Let AI sharpen the details",
+      "description": "Polish descriptions, detect dietary tags, and highlight your best sellers.",
+      "toggles": {
+        "descriptions": {
+          "title": "Auto-generate descriptions",
+          "description": "Write a short description for every dish that's missing one."
+        },
+        "dietary": {
+          "title": "Dietary tag detection",
+          "description": "Detect V, VG, GF, DF, NF tags from your ingredient list."
+        },
+        "chef": {
+          "title": "Chef's pick highlights",
+          "description": "Mark your highest-margin dishes as featured."
+        }
+      },
+      "addOnsTitle": "Add-ons",
+      "addOns": {
+        "language": {
+          "title": "Multi-language",
+          "description": "Auto-translate your menu to Spanish, French, or Italian.",
+          "price": "$29 · one-time"
+        },
+        "photos": {
+          "title": "AI dish photos",
+          "description": "Generate hero photos for dishes without one.",
+          "price": "$29 · one-time"
+        }
+      },
+      "add": "Add",
+      "added": "Added"
+    },
+    "design": {
+      "title": "Your four variations",
+      "description": "Four variations for {restaurant}. Pick one — you can refine it in the next step.",
+      "generating": "Building previews…",
+      "variations": {
+        "minimal": { "name": "Minimal elegance", "tagline": "Whitespace · serif italic" },
+        "bold": { "name": "Bold & dramatic", "tagline": "Dark · amber accents" },
+        "photo": { "name": "Photo-centric", "tagline": "Hero images per dish" },
+        "vintage": { "name": "Classic vintage", "tagline": "Parchment · engraved" }
+      },
+      "selected": "Selected",
+      "upsellTitle": "Want a designer to refine it?",
+      "upsellDescription": "Hand off to a professional designer. 48h turnaround.",
+      "upsellCta": "Designer revision · $199"
+    },
+    "export": {
+      "title": "Ship it",
+      "description": "Pick what you need. You can come back and export more later.",
+      "options": {
+        "pdf": {
+          "name": "Print-ready PDF",
+          "description": "CMYK, bleed-ready PDF you can send straight to a printer."
+        },
+        "qr": {
+          "name": "Digital QR menu",
+          "description": "Hosted menu at menuai.app/your-slug with live updates."
+        },
+        "social": {
+          "name": "Social media pack",
+          "description": "12 Instagram-ready posts and story templates."
+        },
+        "kit": {
+          "name": "QR code kit",
+          "description": "Table tents, window decals, business-card QR."
+        },
+        "fulfillment": {
+          "name": "Print fulfillment",
+          "description": "We print and ship 50 copies to your door."
+        },
+        "translations": {
+          "name": "Translations",
+          "description": "Generate ES / FR / IT versions of this menu."
+        }
+      },
+      "included": "Included",
+      "addOn": "Add-on",
+      "select": "Select",
+      "selected": "Selected"
+    }
+  },
+  "Sidebar": {
+    "brand": "Restaurant Studio",
+    "dashboard": "Dashboard",
+    "create": "Create menu",
+    "menus": "My menus",
+    "social": "Social content",
+    "qr": "QR codes",
+    "plan": "Plan",
+    "upgrade": "Upgrade"
+  },
+  "Changelog": {
+    "title": "Changelog",
+    "description": "Everything that's shipped in MenuAI.",
+    "backHome": "Back home",
+    "latest": "Latest",
+    "types": {
+      "added": "Added",
+      "changed": "Changed",
+      "fixed": "Fixed",
+      "removed": "Removed"
+    },
+    "moreHistory": "Looking for more history?",
+    "viewGithub": "View full changelog on GitHub"
+  }
+}

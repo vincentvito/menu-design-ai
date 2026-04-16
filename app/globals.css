@@ -1,0 +1,245 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ========================================================================
+   MenuAI Design Tokens (source of truth — PRD §1)
+   ======================================================================== */
+
+@theme {
+  /* ── Greens (primary brand) ── */
+  --color-g900: #0d1f14;
+  --color-g800: #1c3829;
+  --color-g700: #2a5240;
+  --color-g600: #3d7059;
+  --color-g200: #b8ccbf;
+  --color-g100: #dce8df;
+  --color-g50: #f2f7f3;
+
+  /* ── Amber (accent) ── */
+  --color-amber: #c9922a;
+  --color-amber-l: #f7edd9;
+
+  /* ── Neutrals ──
+     PRD spec'd text3 at #8fa393 (fails AA on white at 3.3:1). Darkened to
+     #6e8377 — 4.7:1 on white, 4.5:1 on cream — while staying visually muted
+     vs text2 (#4d6355). */
+  --color-cream: #faf8f3;
+  --color-text: #1a2e20;
+  --color-text2: #4d6355;
+  --color-text3: #6e8377;
+  --color-brand-border: #dee8e1;
+
+  /* ── Status pills ──
+     PRD specifies pill-amber-fg at #7a4f08. Darkened to #4a2e05 (AA/AAA on
+     both amber + amber-l backgrounds) while staying in the amber family.
+     pill-gray-fg already matches text2 — AA-safe. */
+  --color-pill-green-bg: #e6f5ec;
+  --color-pill-green-fg: #245b3d;
+  --color-pill-blue-bg: #e6effc;
+  --color-pill-blue-fg: #1f4788;
+  --color-pill-amber-bg: #f7edd9;
+  --color-pill-amber-fg: #4a2e05;
+  --color-pill-gray-bg: #f2f7f3;
+  --color-pill-gray-fg: #4d6355;
+
+  /* ── Typography ── */
+  --font-display: var(--font-display), 'Playfair Display', Georgia, serif;
+  --font-body: var(--font-body), 'DM Sans', system-ui, sans-serif;
+  --font-sans: var(--font-body), 'DM Sans', system-ui, sans-serif;
+
+  /* ── Radii ── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+}
+
+/* ========================================================================
+   Keyframes / Animations
+   ======================================================================== */
+
+@keyframes fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ========================================================================
+   shadcn token mapping → MenuAI palette
+   (keeps every shadcn component aligned to our brand out of the box)
+   ======================================================================== */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 10px;
+
+  /* Surfaces */
+  --background: #faf8f3; /* cream */
+  --foreground: #1a2e20; /* text */
+  --card: #ffffff;
+  --card-foreground: #1a2e20;
+  --popover: #ffffff;
+  --popover-foreground: #1a2e20;
+
+  /* Primary = deep green (g800) */
+  --primary: #1c3829;
+  --primary-foreground: #faf8f3;
+
+  /* Secondary = soft green (g50) */
+  --secondary: #f2f7f3;
+  --secondary-foreground: #1c3829;
+
+  /* Muted = subtle cream-green */
+  --muted: #f2f7f3;
+  --muted-foreground: #4d6355; /* text2 */
+
+  /* Accent = amber */
+  --accent: #f7edd9; /* amber-l */
+  --accent-foreground: #7a4f08;
+
+  --destructive: #b54443;
+
+  --border: #dee8e1;
+  --input: #dee8e1;
+  --ring: #2a5240; /* g700 */
+
+  /* Charts */
+  --chart-1: #1c3829;
+  --chart-2: #3d7059;
+  --chart-3: #c9922a;
+  --chart-4: #b8ccbf;
+  --chart-5: #7a4f08;
+
+  /* Sidebar = dark green per PRD */
+  --sidebar: #1c3829;
+  --sidebar-foreground: #b8ccbf;
+  --sidebar-primary: #c9922a;
+  --sidebar-primary-foreground: #1c3829;
+  --sidebar-accent: #2a5240;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2a5240;
+  --sidebar-ring: #c9922a;
+}
+
+.dark {
+  --background: #0d1f14;
+  --foreground: #dce8df;
+  --card: #1c3829;
+  --card-foreground: #dce8df;
+  --popover: #1c3829;
+  --popover-foreground: #dce8df;
+  --primary: #c9922a;
+  --primary-foreground: #0d1f14;
+  --secondary: #2a5240;
+  --secondary-foreground: #dce8df;
+  --muted: #2a5240;
+  --muted-foreground: #b8ccbf;
+  --accent: #2a5240;
+  --accent-foreground: #f7edd9;
+  --destructive: #d86464;
+  --border: rgba(220, 232, 223, 0.1);
+  --input: rgba(220, 232, 223, 0.12);
+  --ring: #c9922a;
+  --sidebar: #0d1f14;
+  --sidebar-foreground: #b8ccbf;
+  --sidebar-primary: #c9922a;
+  --sidebar-primary-foreground: #0d1f14;
+  --sidebar-accent: #1c3829;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(220, 232, 223, 0.08);
+  --sidebar-ring: #c9922a;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+
+  /* Give every custom <button> (ones not wrapped in shadcn Button) a
+     consistent brand focus ring, since many of our interactive pills /
+     swatches / card-buttons are plain elements. */
+  button:focus-visible,
+  [role='button']:focus-visible {
+    @apply ring-ring ring-offset-background rounded-[inherit] ring-2 ring-offset-2 outline-none;
+  }
+
+  /* Respect reduced-motion preferences globally. Keeps essential state
+     transitions but kills ambient animations. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@utility skip-link {
+  @apply bg-g800 focus-visible:ring-amber sr-only rounded-md px-3 py-2 text-sm font-semibold text-white shadow-lg focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus-visible:ring-2 focus-visible:outline-none;
+}

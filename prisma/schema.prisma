@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String       @id
+  name          String
+  email         String
+  emailVerified Boolean      @default(false)
+  image         String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  menuDesigns   MenuDesign[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+/// One wizard run. Captures the config + items snapshot used to generate a set
+/// of design predictions. One design ↔ many predictions (typically 2 variants).
+model MenuDesign {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Snapshot of MenuConfig at generation time
+  config    Json
+  /// Snapshot of MenuItem[] at generation time
+  items     Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  predictions Prediction[]
+
+  @@index([userId, createdAt])
+  @@map("menu_design")
+}
+
+/// One Replicate prediction within a MenuDesign. Holds both the ephemeral
+/// Replicate URL and the permanent R2 URL (copied once the prediction succeeds).
+model Prediction {
+  /// Replicate prediction id — primary key so /api/predictions/[id] maps directly.
+  id            String     @id
+  designId      String
+  design        MenuDesign @relation(fields: [designId], references: [id], onDelete: Cascade)
+
+  /// Variant slug, e.g. 'editorial' | 'atmospheric'
+  variantId     String
+  variantLabel  String
+
+  /// Replicate prediction status: starting | processing | succeeded | failed | canceled
+  status        String
+  /// The full prompt sent to Replicate (for debugging + audit)
+  prompt        String
+
+  /// Ephemeral Replicate CDN URL (~1h TTL)
+  replicateUrl  String?
+  /// Permanent storage key in R2 bucket
+  storageKey    String?
+  /// Public URL serving the R2-hosted copy
+  storageUrl    String?
+
+  error         String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([designId])
+  @@map("prediction")
+}
