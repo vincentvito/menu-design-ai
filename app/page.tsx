@@ -1,6 +1,7 @@
 import { getLocale } from 'next-intl/server'
 import { Nav } from '@/components/landing/Nav'
 import { Hero } from '@/components/landing/Hero'
+import { HeroScroll } from '@/components/landing/HeroScroll'
 import { HowItWorks } from '@/components/landing/HowItWorks'
 import { SampleDesigns } from '@/components/landing/SampleDesigns'
 import { PricingCards } from '@/components/landing/PricingCards'
@@ -15,6 +16,7 @@ export default async function LandingPage() {
       <Nav locale={locale} />
       <main id="main-content" tabIndex={-1}>
         <Hero />
+        <HeroScroll />
         <HowItWorks />
         <SampleDesigns />
         <PricingCards />

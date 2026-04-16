@@ -19,7 +19,7 @@ export async function Nav({ locale }: NavProps) {
   ]
 
   return (
-    <nav className="border-border/60 bg-cream/95 supports-[backdrop-filter]:bg-cream/75 fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl">
+    <nav className="landing-nav border-border/60 bg-cream/95 supports-[backdrop-filter]:bg-cream/75 fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl transition-[opacity,transform] duration-500 ease-out">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-4 sm:px-8">
         <Link href="/" className="inline-flex items-center">
           <BrandMark size="md" />

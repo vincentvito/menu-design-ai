@@ -13,6 +13,8 @@ const changelog = [
       {
         type: 'added' as const,
         items: [
+          'Landing page: cinematic scroll-driven hero animation that scrubs through the product story as you scroll',
+          'Sample designs section now showcases four real AI-generated menus (Le Petit Bistro, La Bella Vita, Verdant, Sakura) instead of placeholder cards',
           'Dashboard now shows your actual generated menus pulled from the database, with real thumbnails when available',
           '"My menus" page lists every menu design you\u2019ve generated, instead of placeholders',
         ],

@@ -75,6 +75,36 @@
 }
 
 /* ========================================================================
+   Scroll-scrub hero — CSS-driven overlay animation.
+   The `--progress` custom property (0 → 1) is set by ScrollScrubVideo on
+   scroll; these rules interpolate off of it with zero React re-renders.
+   ======================================================================== */
+
+.scroll-scrub-title {
+  --p-move: clamp(0, calc((var(--progress, 0) - 0.18) / 0.14), 1);
+  transform: translateY(calc(-50% - var(--p-move) * 32vh)) scale(calc(1 - var(--p-move) * 0.25));
+  transform-origin: center top;
+  /* Fade fully out while the title lifts so it never overlaps the video. */
+  opacity: calc(1 - var(--p-move));
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-scrub-title {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Dim (and disable) the landing nav while the scroll-scrub section is pinned
+   over the viewport. Restored instantly once the user scrolls past it. */
+body.scroll-scrub-engaged .landing-nav {
+  opacity: 0;
+  transform: translateY(-0.75rem);
+  pointer-events: none;
+}
+
+/* ========================================================================
    shadcn token mapping → MenuAI palette
    (keeps every shadcn component aligned to our brand out of the box)
    ======================================================================== */

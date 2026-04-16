@@ -1,128 +1,44 @@
+import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 
-interface SampleProps {
+interface Sample {
   id: string
   title: string
   subtitle: string
-  scheme: 'dark' | 'cream' | 'white' | 'photo'
+  src: string
+  alt: string
 }
 
-const samples: SampleProps[] = [
-  { id: 'bold', title: 'Bold & Dramatic', subtitle: 'Black + amber · serif', scheme: 'dark' },
-  { id: 'vintage', title: 'Classic Vintage', subtitle: 'Parchment · engraved', scheme: 'cream' },
+const samples: Sample[] = [
+  {
+    id: 'bold',
+    title: 'Bold & Dramatic',
+    subtitle: 'Black + gold · serif',
+    src: '/showcase/le-petit-bistro.webp',
+    alt: 'Le Petit Bistro — a dark, gilded French menu with gold accents',
+  },
+  {
+    id: 'vintage',
+    title: 'Classic Vintage',
+    subtitle: 'Parchment · editorial',
+    src: '/showcase/la-bella-vita.webp',
+    alt: 'La Bella Vita — a vintage Italian trattoria menu on parchment',
+  },
   {
     id: 'minimal',
     title: 'Minimal Elegance',
-    subtitle: 'Whitespace · serif italic',
-    scheme: 'white',
+    subtitle: 'Grid · contemporary',
+    src: '/showcase/verdant.webp',
+    alt: 'Verdant — a modern plant-based menu with a clean editorial grid',
   },
-  { id: 'photo', title: 'Photo-Centric', subtitle: 'Split layout · modern', scheme: 'photo' },
+  {
+    id: 'photo',
+    title: 'Photo-Centric',
+    subtitle: 'Tasting · imagery-led',
+    src: '/showcase/sakura.webp',
+    alt: 'Sakura Omakase — a photo-led Japanese tasting menu',
+  },
 ]
-
-function SampleCard({ sample }: { sample: SampleProps }) {
-  if (sample.scheme === 'dark') {
-    return (
-      <div className="bg-g800 flex aspect-[3/4] flex-col p-6 text-white">
-        <p className="text-amber font-display text-[10px] tracking-[0.4em] uppercase">La Carta</p>
-        <div className="mt-auto">
-          <div className="bg-amber mb-4 h-[2px] w-10" />
-          <h4 className="font-display text-2xl leading-none font-bold italic">Primi Piatti</h4>
-          <p className="text-g200 mt-3 text-[10px] leading-relaxed">
-            Tagliatelle al tartufo — €32
-            <br />
-            Risotto ai porcini — €28
-            <br />
-            Spaghetti alle vongole — €26
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  if (sample.scheme === 'cream') {
-    return (
-      <div
-        className="flex aspect-[3/4] flex-col p-6"
-        style={{
-          background:
-            'repeating-linear-gradient(45deg, var(--color-cream), var(--color-cream) 10px, color-mix(in oklab, var(--color-amber-l) 65%, var(--color-cream)) 10px, color-mix(in oklab, var(--color-amber-l) 65%, var(--color-cream)) 11px)',
-        }}
-      >
-        <p className="text-pill-amber-fg font-display text-center text-[10px] tracking-[0.4em]">
-          ESTABLISHED 1902
-        </p>
-        <h4 className="font-display text-text mt-4 text-center text-lg leading-tight font-bold italic">
-          Chef&rsquo;s Tasting Menu
-        </h4>
-        <div className="border-pill-amber-fg/40 my-4 border-t border-dashed" />
-        <div className="text-text space-y-2 text-[10px]">
-          <div className="flex justify-between">
-            <span>Crudo di Ricciola</span>
-            <span>22</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Pappardelle al Cinghiale</span>
-            <span>28</span>
-          </div>
-          <div className="flex justify-between">
-            <span>Bistecca alla Fiorentina</span>
-            <span>62</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (sample.scheme === 'white') {
-    return (
-      <div className="flex aspect-[3/4] flex-col bg-white p-6">
-        <div className="bg-text h-[1px] w-6" />
-        <p className="text-text3 mt-4 font-mono text-[10px] tracking-widest uppercase">
-          Spring · ’26
-        </p>
-        <div className="mt-auto space-y-3">
-          <h4 className="font-display text-text text-2xl leading-tight font-light italic">
-            Dinner
-            <br />à la carte
-          </h4>
-          <p className="text-text2 max-w-[9rem] text-[10px] leading-relaxed">
-            Menu changes daily. Please inform your server of any allergies.
-          </p>
-        </div>
-      </div>
-    )
-  }
-
-  // photo
-  return (
-    <div className="relative flex aspect-[3/4] flex-col overflow-hidden bg-white">
-      <div
-        className="relative h-1/2"
-        style={{
-          background:
-            'linear-gradient(135deg, color-mix(in oklab, var(--color-amber) 80%, white), var(--color-amber) 40%, var(--color-pill-amber-fg))',
-        }}
-      >
-        <div className="absolute inset-0 opacity-30 mix-blend-overlay">
-          <div
-            className="h-full w-full"
-            style={{ background: 'radial-gradient(circle at 70% 60%, #fff, transparent 50%)' }}
-          />
-        </div>
-      </div>
-      <div className="flex flex-1 flex-col p-5">
-        <p className="text-amber font-mono text-[9px] tracking-widest uppercase">Signature</p>
-        <h4 className="font-display text-text mt-2 text-lg leading-tight font-bold">
-          Truffle Tagliatelle
-        </h4>
-        <p className="text-text2 mt-2 text-[10px] leading-relaxed">
-          Hand-rolled egg pasta, Alba white truffle, aged parmigiano.
-        </p>
-        <span className="text-text mt-auto font-mono text-sm font-semibold">€32</span>
-      </div>
-    </div>
-  )
-}
 
 export async function SampleDesigns() {
   const t = await getTranslations('Landing.samples')
@@ -144,10 +60,34 @@ export async function SampleDesigns() {
         </div>
 
         <div className="mt-14 grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-4">
-          {samples.map((s) => (
+          {samples.map((s, i) => (
             <div key={s.id} className="group">
-              <div className="border-brand-border overflow-hidden rounded-xl border shadow-sm transition-all group-hover:shadow-lg">
-                <SampleCard sample={s} />
+              <div
+                className="border-brand-border bg-card group-hover:border-amber/50 relative aspect-[3/4] overflow-hidden rounded-xl border shadow-sm transition-[transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:-translate-y-1.5 group-hover:rotate-[0.4deg] group-hover:shadow-2xl"
+                style={{ transformOrigin: i % 2 === 0 ? 'bottom left' : 'bottom right' }}
+              >
+                <Image
+                  src={s.src}
+                  alt={s.alt}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:scale-[1.06]"
+                />
+                <div
+                  aria-hidden="true"
+                  className="from-g900/55 via-g900/10 pointer-events-none absolute inset-0 bg-gradient-to-t to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                />
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-4 bottom-4 translate-y-3 text-left opacity-0 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0 group-hover:opacity-100"
+                >
+                  <span className="text-amber font-display text-[10px] font-semibold tracking-[0.3em] uppercase">
+                    Style {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <p className="font-display mt-1 text-sm font-semibold text-white italic">
+                    {s.title}
+                  </p>
+                </div>
               </div>
               <div className="mt-3">
                 <h3 className="font-display text-text text-base font-semibold">{s.title}</h3>
