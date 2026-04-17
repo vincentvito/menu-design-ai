@@ -2,7 +2,16 @@
 
 import { useMemo } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { QrCode, Flame, BookOpenCheck, Share2, Sprout, Camera, Brush } from 'lucide-react'
+import {
+  QrCode,
+  Flame,
+  BookOpenCheck,
+  Share2,
+  Sprout,
+  Camera,
+  Brush,
+  Construction,
+} from 'lucide-react'
 import { TopBar } from '@/components/layout/TopBar'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { MenuCard } from '@/components/dashboard/MenuCard'
@@ -45,6 +54,14 @@ export function DashboardView({ user, menus }: DashboardViewProps) {
         primaryAction={primaryAction}
         secondaryAction={secondaryAction}
       />
+
+      <div className="bg-amber-l border-amber/30 flex items-center gap-3 border-b px-5 py-3 sm:px-8">
+        <Construction className="text-pill-amber-fg size-4 shrink-0" />
+        <p className="text-text text-sm">
+          <span className="font-semibold">Menu generation coming soon —</span> we're putting the
+          finishing touches on the AI designer. Stay tuned!
+        </p>
+      </div>
 
       <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8">
         {/* Only the real-data stat is surfaced right now. The QR / top-item / posts

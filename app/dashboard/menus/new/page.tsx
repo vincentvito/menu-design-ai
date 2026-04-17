@@ -1,3 +1,14 @@
+import { redirect } from 'next/navigation'
+
+export default function NewMenuWizardPage() {
+  redirect('/dashboard')
+}
+
+// ── temporarily disabled ──────────────────────────────────────────────────────
+// Remove the export above and uncomment the rest to re-enable generation.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/*
 'use client'
 
 import { useRouter } from 'next/navigation'
@@ -46,3 +57,4 @@ export default function NewMenuWizardPage() {
     </WizardShell>
   )
 }
+*/
