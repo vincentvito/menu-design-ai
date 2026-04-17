@@ -62,20 +62,26 @@ export function LiveDesignGrid({ predictions, selectedIndex, onSelect }: Props) 
           const isError = p.status === 'failed' || p.status === 'canceled'
           const disabled = !isReady
           return (
-            <button
+            <div
               key={p.id || i}
-              type="button"
-              onClick={() => isReady && onSelect(i)}
-              aria-pressed={active}
-              disabled={disabled}
               className={cn(
                 'group border-brand-border bg-card relative flex flex-col overflow-hidden rounded-2xl border text-left transition-all',
                 isReady && 'hover:shadow-md',
                 active && 'ring-g800 border-g800 ring-2',
-                disabled && 'cursor-default',
               )}
             >
-              <div className="bg-cream/60 relative aspect-[3/4] w-full overflow-hidden">
+              <div
+                role={isReady ? 'button' : undefined}
+                tabIndex={isReady ? 0 : undefined}
+                aria-pressed={isReady ? active : undefined}
+                aria-label={isReady ? `Select ${p.variant.label} design` : undefined}
+                onClick={() => isReady && onSelect(i)}
+                onKeyDown={(e) => e.key === 'Enter' && isReady && onSelect(i)}
+                className={cn(
+                  'bg-cream/60 relative aspect-[3/4] w-full overflow-hidden',
+                  isReady && 'cursor-pointer',
+                )}
+              >
                 {isReady && p.imageUrl ? (
                   <>
                     <img
@@ -129,7 +135,7 @@ export function LiveDesignGrid({ predictions, selectedIndex, onSelect }: Props) 
                   <span className="text-text3 text-[11px]">Unavailable</span>
                 )}
               </div>
-            </button>
+            </div>
           )
         })}
       </div>
