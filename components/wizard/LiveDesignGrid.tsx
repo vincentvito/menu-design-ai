@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Check, Loader2, AlertCircle, Maximize2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { PredictionSlot } from './useWizard'
@@ -20,9 +21,9 @@ function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: ()
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
@@ -42,7 +43,8 @@ function Lightbox({ src, alt, onClose }: { src: string; alt: string; onClose: ()
         className="h-full w-full object-contain"
         onClick={(e) => e.stopPropagation()}
       />
-    </div>
+    </div>,
+    document.body,
   )
 }
 
