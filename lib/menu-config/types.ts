@@ -71,6 +71,9 @@ export interface MenuConfig {
   /* Localization */
   language: LanguageConfig
 
+  /* Pricing */
+  currencySymbol: string
+
   /* Output */
   format: MenuFormat
 }
@@ -92,6 +95,7 @@ export const DEFAULT_MENU_CONFIG: MenuConfig = {
     dietaryIcons: true,
   },
   priceDisplay: 'symbol',
+  currencySymbol: '',
   language: { primary: 'en' },
   format: 'a4',
 }

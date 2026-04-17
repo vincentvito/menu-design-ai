@@ -48,3 +48,10 @@ const priceFormatter = new Intl.NumberFormat('en-US', {
 export function formatPrice(n: number): string {
   return priceFormatter.format(n)
 }
+
+const plainNumberFormatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
+
+/** Format a price without any currency symbol — used when currency is unknown. */
+export function formatPriceRaw(n: number): string {
+  return plainNumberFormatter.format(n)
+}

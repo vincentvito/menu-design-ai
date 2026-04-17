@@ -19,6 +19,8 @@ interface GenerateResponse {
   predictions: Array<{
     id: string
     status: PredictionSlot['status']
+    output: string | null
+    error: string | null
     variant: PredictionSlot['variant']
   }>
 }
@@ -55,8 +57,8 @@ async function createPredictions(
     id: p.id,
     variant: p.variant,
     status: p.status,
-    imageUrl: null,
-    error: null,
+    imageUrl: p.output ?? null,
+    error: p.error ?? null,
   }))
 }
 
@@ -140,6 +142,13 @@ export function Step4Designs({ state, dispatch }: Props) {
   }
 
   const anyReady = state.predictions.some((p) => p.status === 'succeeded' && p.imageUrl)
+  const allDone =
+    state.generationStarted &&
+    state.predictions.length > 0 &&
+    state.predictions.every(
+      (p) => p.status === 'succeeded' || p.status === 'failed' || p.status === 'canceled',
+    )
+  const allFailed = allDone && !anyReady
   const waiting = !state.generationError && !state.generationStarted
 
   return (
@@ -169,7 +178,7 @@ export function Step4Designs({ state, dispatch }: Props) {
           className="border-brand-border bg-card flex min-h-[340px] flex-col items-center justify-center gap-3 rounded-2xl border p-10 text-center"
         >
           <Loader2 className="text-g800 size-6 animate-spin" aria-hidden="true" />
-          <p className="text-text2 text-sm">Queuing two designs…</p>
+          <p className="text-text2 text-sm">Generating four designs… this takes about a minute</p>
         </div>
       ) : (
         <LiveDesignGrid
@@ -177,6 +186,31 @@ export function Step4Designs({ state, dispatch }: Props) {
           selectedIndex={state.selectedPredictionIndex}
           onSelect={(i) => dispatch({ type: 'select-prediction', index: i })}
         />
+      )}
+
+      {allFailed && (
+        <div className="border-pill-red-fg/30 bg-pill-red-bg/30 mt-4 flex flex-col items-start gap-3 rounded-2xl border p-5 sm:flex-row sm:items-center">
+          <AlertCircle className="text-pill-red-fg size-5 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="font-display text-text text-sm font-semibold">All variants failed</p>
+            <p className="text-text2 mt-1 text-xs">
+              {state.predictions[0]?.error ?? 'The AI was unable to generate images. Try again.'}
+            </p>
+          </div>
+          <Button size="sm" variant="outline" onClick={retry}>
+            <RefreshCw className="mr-1.5 size-3.5" />
+            Regenerate
+          </Button>
+        </div>
+      )}
+
+      {anyReady && (
+        <div className="mt-4 flex justify-end">
+          <Button size="sm" variant="outline" onClick={retry}>
+            <RefreshCw className="mr-1.5 size-3.5" />
+            Regenerate
+          </Button>
+        </div>
       )}
 
       {anyReady && (

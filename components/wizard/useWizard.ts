@@ -86,8 +86,27 @@ function reducer(state: WizardState, action: Action): WizardState {
       return { ...state, stepIndex: Math.max(0, Math.min(action.index, WIZARD_STEPS.length - 1)) }
     case 'upload-start':
       return { ...state, extracting: true, uploaded: false, items: [] }
-    case 'upload-complete':
-      return { ...state, extracting: false, uploaded: true, items: action.items }
+    case 'upload-complete': {
+      const seen = new Set<string>()
+      const sections: string[] = []
+      for (const item of action.items) {
+        const cat = item.category?.trim()
+        if (cat && !seen.has(cat)) {
+          seen.add(cat)
+          sections.push(cat)
+        }
+      }
+      return {
+        ...state,
+        extracting: false,
+        uploaded: true,
+        items: action.items,
+        config: {
+          ...state.config,
+          structure: { ...state.config.structure, sections },
+        },
+      }
+    }
     case 'generation-started':
       return {
         ...state,

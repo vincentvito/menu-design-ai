@@ -342,14 +342,7 @@
     },
     "design": {
       "title": "Le tue quattro varianti",
-      "description": "Quattro varianti per {restaurant}. Scegline una — potrai perfezionarla dopo.",
-      "generating": "Costruzione anteprime…",
-      "variations": {
-        "minimal": { "name": "Minimale elegante", "tagline": "Spazio · serif corsivo" },
-        "bold": { "name": "Audace e drammatico", "tagline": "Scuro · accenti ambra" },
-        "photo": { "name": "Foto-centrico", "tagline": "Immagini protagoniste" },
-        "vintage": { "name": "Classico vintage", "tagline": "Pergamena · incisione" }
-      },
+      "description": "Quattro varianti per {restaurant}. Scegli quella che ami — perfezionala nel prossimo passaggio.",
       "selected": "Selezionato",
       "upsellTitle": "Vuoi che un designer lo perfezioni?",
       "upsellDescription": "Un designer professionista lo perfeziona. Consegna in 48h.",

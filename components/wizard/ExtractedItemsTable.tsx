@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { SAMPLE_CATEGORIES, type CategoryFilter, type MenuItem } from '@/lib/mock-data'
+import type { MenuItem } from '@/lib/mock-data'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import { formatPrice } from '@/lib/format'
+import { formatPriceRaw } from '@/lib/format'
 
 interface ExtractedItemsTableProps {
   items: MenuItem[]
@@ -13,7 +13,14 @@ interface ExtractedItemsTableProps {
 
 export function ExtractedItemsTable({ items }: ExtractedItemsTableProps) {
   const t = useTranslations('Wizard.upload')
-  const [filter, setFilter] = useState<CategoryFilter>('All')
+
+  const categories = useMemo(() => {
+    const seen = new Set<string>()
+    for (const item of items) if (item.category) seen.add(item.category)
+    return ['All', ...Array.from(seen)]
+  }, [items])
+
+  const [filter, setFilter] = useState('All')
 
   const rows = useMemo(
     () => (filter === 'All' ? items : items.filter((i) => i.category === filter)),
@@ -22,19 +29,19 @@ export function ExtractedItemsTable({ items }: ExtractedItemsTableProps) {
 
   return (
     <div className="border-brand-border bg-card overflow-hidden rounded-2xl border">
-      {/* Filter pills */}
+      {/* Filter pills — derived from actual item categories */}
       <div
         className="border-brand-border flex flex-wrap gap-2 border-b px-5 py-3"
         role="tablist"
         aria-label="Category filter"
       >
-        {SAMPLE_CATEGORIES.map((cat) => (
+        {categories.map((cat) => (
           <button
             key={cat}
             type="button"
             role="tab"
             aria-selected={cat === filter}
-            onClick={() => setFilter(cat)}
+            onClick={() => setFilter(cat as string)}
             className={cn(
               'min-h-[36px] rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
               cat === filter
@@ -91,7 +98,7 @@ export function ExtractedItemsTable({ items }: ExtractedItemsTableProps) {
                 </th>
                 <td className="text-text2 px-5 py-3 text-xs">{item.category}</td>
                 <td className="text-text px-5 py-3 text-right font-mono text-xs whitespace-nowrap">
-                  {formatPrice(item.price)}
+                  {formatPriceRaw(item.price)}
                 </td>
                 <td className="text-text2 max-w-xs px-5 py-3 text-xs">
                   <span className="line-clamp-2">{item.description}</span>

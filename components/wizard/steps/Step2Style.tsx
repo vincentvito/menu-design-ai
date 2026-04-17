@@ -260,6 +260,38 @@ export function Step2Style({ state, dispatch }: Props) {
               })}
             </div>
           </FieldGroup>
+
+          {config.priceDisplay !== 'hidden' && (
+            <FieldGroup
+              title="Currency symbol"
+              description="Leave blank to show numbers only. Type any symbol or code."
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                {['$', '€', '£', '¥', 'AED', 'AED ', 'kr', 'CHF', 'R$'].map((sym) => (
+                  <button
+                    key={sym}
+                    type="button"
+                    aria-pressed={config.currencySymbol === sym}
+                    onClick={() => patch({ currencySymbol: sym })}
+                    className={`border-brand-border bg-card text-text2 rounded-lg border px-3 py-2 font-mono text-sm transition-colors ${
+                      config.currencySymbol === sym
+                        ? 'border-g800 bg-g800/5 text-text ring-g800/30 ring-2'
+                        : ''
+                    }`}
+                  >
+                    {sym.trim()}
+                  </button>
+                ))}
+                <Input
+                  className="w-28"
+                  placeholder="e.g. د.إ"
+                  value={config.currencySymbol}
+                  onChange={(e) => patch({ currencySymbol: e.target.value })}
+                  aria-label="Custom currency symbol"
+                />
+              </div>
+            </FieldGroup>
+          )}
         </div>
 
         {/* ───── Localization ───── */}

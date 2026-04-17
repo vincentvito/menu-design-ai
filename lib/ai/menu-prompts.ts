@@ -70,10 +70,11 @@ function joinList(items: string[]): string {
   return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`
 }
 
-function formatPrice(price: number, display: PriceDisplay): string | null {
+function formatPrice(price: number, display: PriceDisplay, currencySymbol: string): string | null {
   if (display === 'hidden') return null
   if (display === 'numeric') return price.toString()
-  return `$${price}`
+  const sym = currencySymbol.trim()
+  return sym ? `${sym}${price}` : price.toString()
 }
 
 function formatTags(tags: DietaryTag[], enabled: boolean): string {
@@ -205,25 +206,29 @@ function buildVisualDirection(config: MenuConfig, items: MenuItem[]): string {
     'text-accents':
       'Primarily typographic with small restrained accents (thin rules, ornamental dividers, a single spot illustration). No large photography.',
     'text-imagery':
-      'Image-forward layout with editorial food photography — natural light, shallow depth of field, realistic textures. No plastic-looking dishes, no stock-photo look.',
+      'PHOTO-FORWARD EDITORIAL MENU — creative multi-zone layout, NOT a single hero + text overlay. ' +
+      'Divide the canvas into an asymmetric composition: e.g. a large primary photo panel (60–70% of width) flanked by a narrow typographic column, OR a 2×2 photo grid in the upper half with a full-width text band below, OR alternating full-bleed photo strips between menu sections. ' +
+      'Each photo panel should contain richly lit, close-cropped food photography: shallow depth of field, moody or natural window light, steam, sauce pours, condensation on glass, luxurious plating — food as art object. ' +
+      'Text zones get a clean background (solid, tinted, or frosted) that contrasts sharply with the photos — no text floating over busy imagery. ' +
+      'The overall effect should feel like a luxury lifestyle magazine spread or a Michelin-starred restaurant wine card: dramatic, considered, worth keeping. ' +
+      'No clip art, no generic stock photo look, no symmetric center-locked layouts.',
   }
 
   const parts: string[] = ['Visual direction:', densityDirective[config.contentDensity]]
 
-  // If the brief asks for imagery, tell the model *which* dishes to photograph
-  // so the composition keys off the actual menu instead of inventing stand-ins.
+  // For image-heavy mode, name 2 specific dishes to photograph across the photo panels
   if (config.contentDensity === 'text-imagery') {
-    const focals = pickFocalDishes(items, 3)
+    const focals = pickFocalDishes(items, 2)
     if (focals.length > 0) {
       const bullets = focals
         .map((it) => {
           const desc = it.description?.trim()
-          return desc ? `"${it.name}" (${desc})` : `"${it.name}"`
+          return `"${it.name}"${desc ? ` (${desc})` : ''}`
         })
-        .join('; ')
+        .join(' and ')
       parts.push(
-        `Photograph these signature dishes as the hero imagery — each should appear as its own photographic still adjacent to its listing: ${bullets}. ` +
-          'Match plating and ingredients to the dish names literally (do not substitute or generify).',
+        `Photo panel subjects — style these for a professional food editorial shoot: ${bullets}. ` +
+          'Match plating and ingredients to each dish description literally. No generic stock food.',
       )
     }
   }
@@ -254,10 +259,7 @@ function buildLiteralTextBlock(config: MenuConfig, items: MenuItem[]): string {
     `• Title at top of page: "${name}"`,
   ]
 
-  const cuisines = config.cuisines.map(formatCuisine)
-  if (cuisines.length > 0) {
-    lines.push(`• Subtitle under title: "${joinList(cuisines)}"`)
-  }
+  // Cuisine drives visual identity only — do NOT render it as a subtitle or tagline.
 
   if (items.length === 0) {
     lines.push('')
@@ -272,7 +274,7 @@ function buildLiteralTextBlock(config: MenuConfig, items: MenuItem[]): string {
     lines.push('')
     lines.push(`Section heading: "${group.name.toUpperCase()}"`)
     for (const it of group.items) {
-      const price = formatPrice(it.price, config.priceDisplay)
+      const price = formatPrice(it.price, config.priceDisplay, config.currencySymbol ?? '')
       const tags = formatTags(it.tags, config.structure.dietaryIcons)
       const segments: string[] = [`"${it.name}"${tags}`]
       if (it.description.trim()) segments.push(`"${it.description.trim()}"`)

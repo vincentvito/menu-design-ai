@@ -342,14 +342,7 @@
     },
     "design": {
       "title": "Your four variations",
-      "description": "Four variations for {restaurant}. Pick one — you can refine it in the next step.",
-      "generating": "Building previews…",
-      "variations": {
-        "minimal": { "name": "Minimal elegance", "tagline": "Whitespace · serif italic" },
-        "bold": { "name": "Bold & dramatic", "tagline": "Dark · amber accents" },
-        "photo": { "name": "Photo-centric", "tagline": "Hero images per dish" },
-        "vintage": { "name": "Classic vintage", "tagline": "Parchment · engraved" }
-      },
+      "description": "Four variations for {restaurant}. Pick the one you love — refine it in the next step.",
       "selected": "Selected",
       "upsellTitle": "Want a designer to refine it?",
       "upsellDescription": "Hand off to a professional designer. 48h turnaround.",
