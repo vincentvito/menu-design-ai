@@ -267,7 +267,7 @@ export function Step2Style({ state, dispatch }: Props) {
               description="Leave blank to show numbers only. Type any symbol or code."
             >
               <div className="flex flex-wrap items-center gap-2">
-                {['$', '€', '£', '¥', 'AED', 'AED ', 'kr', 'CHF', 'R$'].map((sym) => (
+                {['$', '€', '£', '¥', 'AED', 'kr', 'CHF', 'R$'].map((sym) => (
                   <button
                     key={sym}
                     type="button"
