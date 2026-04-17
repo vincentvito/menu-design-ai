@@ -10,6 +10,7 @@ export interface StatCardProps {
   trend?: number
   icon?: React.ReactNode
   accent?: 'green' | 'amber' | 'blue' | 'neutral'
+  className?: string
 }
 
 const accentMap = {
@@ -26,12 +27,13 @@ export const StatCard = memo(function StatCard({
   trend,
   icon,
   accent = 'green',
+  className,
 }: StatCardProps) {
   const TrendIcon = trend !== undefined && trend < 0 ? TrendingDown : TrendingUp
   const trendPositive = trend !== undefined && trend >= 0
 
   return (
-    <Card className="border-brand-border bg-card relative overflow-hidden">
+    <Card className={cn('border-brand-border bg-card relative overflow-hidden', className)}>
       <CardContent className="p-5">
         <div className="flex items-start justify-between gap-2">
           <p className="text-text2 text-xs font-medium tracking-wide uppercase">{label}</p>

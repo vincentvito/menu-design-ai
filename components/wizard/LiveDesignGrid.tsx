@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Check, Loader2, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { PredictionSlot } from './useWizard'
@@ -37,13 +36,10 @@ export function LiveDesignGrid({ predictions, selectedIndex, onSelect }: Props) 
           >
             <div className="bg-cream/60 relative aspect-[3/4] w-full overflow-hidden">
               {isReady && p.imageUrl ? (
-                <Image
+                <img
                   src={p.imageUrl}
                   alt={`${p.variant.label} design`}
-                  fill
-                  sizes="(min-width: 640px) 50vw, 100vw"
-                  className="object-cover"
-                  unoptimized
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
               ) : isError ? (
                 <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">

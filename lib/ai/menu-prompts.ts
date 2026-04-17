@@ -1,16 +1,14 @@
 /**
- * Model-tuned prompt builder for Replicate image generation (qwen/qwen-image-2).
- *
- * qwen-image-2 supports prompts up to ~1k tokens and renders text reliably when
- * the exact strings to render are quoted inline. We inline every dish name,
- * description, and price verbatim so the model has no room to hallucinate copy.
+ * Prompt builder for Replicate image generation (google/nano-banana-2).
  *
  * Structure:
  *   1. Identity (one sentence)
- *   2. Concept + variant direction
+ *   2. Concept + variant direction (with per-preset typographic directives)
  *   3. Visual direction (art / color / typography, compact)
- *   4. TEXT TO RENDER block — literal quoted strings for title + every item
- *   5. Technical/print constraints
+ *      · if content-density = text-imagery, also name 2–3 focal dishes to photograph
+ *   4. Localization
+ *   5. TEXT TO RENDER block — literal quoted strings for title + every item
+ *   6. Technical/print constraints
  */
 
 import {
@@ -34,14 +32,30 @@ import type { VariantPersonality } from './variants'
 
 /* ---------------------------------- helpers --------------------------------- */
 
-function presetLabel(presets: Preset[], id: string): string {
-  return presets.find((p) => p.id === id)?.label ?? id
+interface Resolved {
+  /** Human-readable label (preset label, or the custom string). */
+  label: string
+  /** Prompt-only directive if a preset with one was selected; null for custom. */
+  directive: string | null
 }
 
-function resolveSelectable(v: SelectableValue | null, presets: Preset[]): string | null {
+function findPreset(presets: Preset[], id: string): Preset | null {
+  return presets.find((p) => p.id === id) ?? null
+}
+
+function presetLabel(presets: Preset[], id: string): string {
+  return findPreset(presets, id)?.label ?? id
+}
+
+function resolveSelectable(v: SelectableValue | null, presets: Preset[]): Resolved | null {
   if (!v) return null
-  if (v.custom) return v.value.trim() || null
-  return presetLabel(presets, v.value)
+  if (v.custom) {
+    const label = v.value.trim()
+    return label ? { label, directive: null } : null
+  }
+  const preset = findPreset(presets, v.value)
+  if (!preset) return null
+  return { label: preset.label, directive: preset.directive ?? null }
 }
 
 function formatCuisine(c: CuisineSelection): string {
@@ -88,6 +102,40 @@ function groupItemsBySection(
     .sort((a, b) => rank(a.name) - rank(b.name))
 }
 
+/**
+ * Pick up to `n` "signature" dishes to single out for photography when the
+ * brief asks for image-forward density. Preference: explicitly featured items,
+ * then the highest-priced item in each section, then the first item overall.
+ */
+function pickFocalDishes(items: MenuItem[], n = 3): MenuItem[] {
+  if (items.length === 0) return []
+  const picked: MenuItem[] = []
+  const seen = new Set<string>()
+  const take = (it: MenuItem | undefined) => {
+    if (!it || seen.has(it.id) || picked.length >= n) return
+    picked.push(it)
+    seen.add(it.id)
+  }
+
+  for (const it of items) if (it.featured) take(it)
+
+  if (picked.length < n) {
+    const byCategory = new Map<string, MenuItem[]>()
+    for (const it of items) {
+      const bucket = byCategory.get(it.category) ?? []
+      bucket.push(it)
+      byCategory.set(it.category, bucket)
+    }
+    for (const bucket of byCategory.values()) {
+      const top = [...bucket].sort((a, b) => (b.price ?? 0) - (a.price ?? 0))[0]
+      take(top)
+    }
+  }
+
+  for (const it of items) take(it)
+  return picked.slice(0, n)
+}
+
 /* ---------------------------------- sections -------------------------------- */
 
 function buildIdentity(config: MenuConfig): string {
@@ -102,24 +150,52 @@ function buildIdentity(config: MenuConfig): string {
   return `A professional printed restaurant menu design for "${name}"${cuisineClause}.`
 }
 
-function buildConcept(config: MenuConfig, variant: VariantPersonality): string {
+function buildConcept(config: MenuConfig): string {
   const restaurantType = resolveSelectable(config.restaurantType, RESTAURANT_TYPE_PRESETS)
   const vibe = resolveSelectable(config.vibe, VIBE_PRESETS)
+
   const parts: string[] = []
+
   if (restaurantType && vibe) {
     parts.push(
-      `Concept: "${restaurantType}" crossed with a "${vibe}" vibe. Restaurant type drives structural density; vibe drives typography and palette — both must be visible.`,
+      `Concept: "${restaurantType.label}" crossed with a "${vibe.label}" vibe. ` +
+        'Restaurant type drives structural density; vibe drives typography and palette — both must be visible.',
     )
   } else if (restaurantType) {
-    parts.push(`Concept: ${restaurantType}.`)
+    parts.push(`Concept: ${restaurantType.label}.`)
   } else if (vibe) {
-    parts.push(`Concept vibe: ${vibe}.`)
+    parts.push(`Concept vibe: ${vibe.label}.`)
   }
-  parts.push(`Design direction — ${variant.label}: ${variant.directive}`)
-  return parts.join(' ')
+
+  // Cuisine visual directives — each cuisine brings its own design heritage.
+  // Use all of them; for fusion the directives should inform each other.
+  const cuisineDirectives = config.cuisines
+    .filter((c) => !c.custom)
+    .map((c) => {
+      const preset = CUISINE_PRESETS.find((p) => p.id === c.value)
+      return preset?.directive ?? null
+    })
+    .filter(Boolean) as string[]
+
+  if (cuisineDirectives.length === 1) {
+    parts.push(`Cuisine visual heritage: ${cuisineDirectives[0]}`)
+  } else if (cuisineDirectives.length > 1) {
+    parts.push(
+      `Cuisine visual heritage (fusion — blend these sensibilities): ${cuisineDirectives.join(' / ')}`,
+    )
+  }
+
+  if (restaurantType?.directive) {
+    parts.push(`Structure — ${restaurantType.label}: ${restaurantType.directive}`)
+  }
+  if (vibe?.directive) {
+    parts.push(`Typography & mood — ${vibe.label}: ${vibe.directive}`)
+  }
+
+  return parts.join('\n')
 }
 
-function buildVisualDirection(config: MenuConfig): string {
+function buildVisualDirection(config: MenuConfig, items: MenuItem[]): string {
   const palette = resolveSelectable(config.palette, PALETTE_PRESETS)
   const tone = resolveSelectable(config.copyTone, COPY_TONE_PRESETS)
 
@@ -127,25 +203,47 @@ function buildVisualDirection(config: MenuConfig): string {
     'text-only':
       'Typography-led layout with no photographic imagery — letterforms, rules, and negative space carry the composition.',
     'text-accents':
-      'Primarily typographic with small restrained accents (thin rules, ornamental dividers). No large photography.',
+      'Primarily typographic with small restrained accents (thin rules, ornamental dividers, a single spot illustration). No large photography.',
     'text-imagery':
-      'Image-forward layout with editorial food photography (natural light, shallow depth of field, realistic textures). No plastic-looking dishes.',
+      'Image-forward layout with editorial food photography — natural light, shallow depth of field, realistic textures. No plastic-looking dishes, no stock-photo look.',
   }
 
-  const paletteClause = palette
-    ? ` Color system: "${palette}" — one dominant background tone, one strong type color, one accent for dividers and prices.`
-    : ''
-  const toneClause = tone ? ` Copy voice: ${tone}.` : ''
+  const parts: string[] = ['Visual direction:', densityDirective[config.contentDensity]]
 
-  return [
-    'Visual direction:',
-    densityDirective[config.contentDensity],
-    'Crisp typography with clear hierarchy: title largest, section headers medium, dish names bold, descriptions lighter.',
-    paletteClause.trim(),
-    toneClause.trim(),
-  ]
-    .filter(Boolean)
-    .join(' ')
+  // If the brief asks for imagery, tell the model *which* dishes to photograph
+  // so the composition keys off the actual menu instead of inventing stand-ins.
+  if (config.contentDensity === 'text-imagery') {
+    const focals = pickFocalDishes(items, 3)
+    if (focals.length > 0) {
+      const bullets = focals
+        .map((it) => {
+          const desc = it.description?.trim()
+          return desc ? `"${it.name}" (${desc})` : `"${it.name}"`
+        })
+        .join('; ')
+      parts.push(
+        `Photograph these signature dishes as the hero imagery — each should appear as its own photographic still adjacent to its listing: ${bullets}. ` +
+          'Match plating and ingredients to the dish names literally (do not substitute or generify).',
+      )
+    }
+  }
+
+  parts.push(
+    'Crisp typography with a clear hierarchy: restaurant title largest, section headers medium, dish names bold, descriptions lighter.',
+  )
+
+  if (palette) {
+    parts.push(
+      palette.directive
+        ? `Color — "${palette.label}": ${palette.directive}`
+        : `Color system: "${palette.label}" — one dominant background tone, one strong type color, one accent for dividers and prices.`,
+    )
+  }
+  if (tone) {
+    parts.push(tone.directive ?? `Copy voice: ${tone.label}.`)
+  }
+
+  return parts.filter(Boolean).join(' ')
 }
 
 function buildLiteralTextBlock(config: MenuConfig, items: MenuItem[]): string {
@@ -252,9 +350,12 @@ export function buildReplicatePrompt(
   variant: VariantPersonality,
 ): string {
   return [
+    // Variant design system leads — explicit color/layout/typography overrides
+    // must come before everything else so the model treats them as non-negotiable.
+    variant.directive,
     buildIdentity(config),
-    buildConcept(config, variant),
-    buildVisualDirection(config),
+    buildConcept(config),
+    buildVisualDirection(config, items),
     buildLocalization(config),
     buildLiteralTextBlock(config, items),
     buildTechnical(config),
@@ -263,22 +364,9 @@ export function buildReplicatePrompt(
     .join('\n\n')
 }
 
-/** Shared negative-style directive passed via `negative_prompt`. */
-export const DEFAULT_NEGATIVE_PROMPT =
-  'garbled text, misspelled words, malformed letters, gibberish, duplicated words, lorem ipsum, placeholder copy, ' +
-  'watermarks, signatures, artist credits, ' +
-  '3D rendering, photograph of a physical printed menu, clipboard, paper curl, perspective distortion, staged shadows, ' +
-  'plastic-looking food, oversaturated colors, cluttered backgrounds'
-
 /**
- * qwen-image-2 supports: 1:1, 16:9, 9:16, 4:3, 3:4, 3:2, 2:3, 2:1, 1:2.
- * A4 is 1 : 1.414; closest is "3:4" (1 : 1.333). Minor letterbox when printing.
+ * nano-banana-2 supported ratios include 3:4 — a good fit for portrait A4 menus.
  */
-export function aspectRatioForFormat(format: MenuConfig['format']): string {
-  switch (format) {
-    case 'a4':
-      return '3:4'
-    default:
-      return '3:4'
-  }
+export function aspectRatioForFormat(_format: MenuConfig['format']): string {
+  return '3:4'
 }

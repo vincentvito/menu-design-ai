@@ -47,21 +47,9 @@ export function DashboardView({ user, menus }: DashboardViewProps) {
       />
 
       <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8">
+        {/* Only the real-data stat is surfaced right now. The QR / top-item / posts
+            cards are still placeholder and stay hidden until wired to real metrics. */}
         <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label={t('stats.scans')}
-            value={formatNumber(1284)}
-            trend={23}
-            accent="green"
-            icon={<QrCode className="size-4" />}
-          />
-          <StatCard
-            label={t('stats.topItem')}
-            value="Tagliatelle al Tartufo"
-            hint={`${formatNumber(340)} views`}
-            accent="amber"
-            icon={<Flame className="size-4" />}
-          />
           <StatCard
             label={t('stats.menusGenerated')}
             value={String(menus.length)}
@@ -70,11 +58,28 @@ export function DashboardView({ user, menus }: DashboardViewProps) {
             icon={<BookOpenCheck className="size-4" />}
           />
           <StatCard
+            label={t('stats.scans')}
+            value={formatNumber(1284)}
+            trend={23}
+            accent="green"
+            icon={<QrCode className="size-4" />}
+            className="hidden"
+          />
+          <StatCard
+            label={t('stats.topItem')}
+            value="Tagliatelle al Tartufo"
+            hint={`${formatNumber(340)} views`}
+            accent="amber"
+            icon={<Flame className="size-4" />}
+            className="hidden"
+          />
+          <StatCard
             label={t('stats.posts')}
             value="8"
             hint={t('stats.scheduled', { days: 14 })}
             accent="neutral"
             icon={<Share2 className="size-4" />}
+            className="hidden"
           />
         </section>
 
@@ -123,7 +128,7 @@ export function DashboardView({ user, menus }: DashboardViewProps) {
           </div>
         </section>
 
-        <section className="mt-10">
+        <section className="mt-10 hidden">
           <ItemAnalyticsTable items={SAMPLE_MENU_ITEMS} limit={6} />
         </section>
       </div>

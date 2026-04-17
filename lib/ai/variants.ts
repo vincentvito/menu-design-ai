@@ -1,17 +1,12 @@
-/**
- * Design variant personalities for parallel predictions.
- *
- * We fire 2 variants per generation so the user has a choice. Each variant
- * layers on top of the same MenuConfig with a distinct design-direction
- * personality. Keep these short and evocative — they're joined into the
- * full prompt after the core config sections.
- */
-
 export interface VariantPersonality {
   id: string
   label: string
   tagline: string
-  /** Prepended to the prompt's "variant personality" section. */
+  /**
+   * Full visual prescription for this variant. Written to dominate the prompt —
+   * explicitly overrides background, type color, layout grid, and photo treatment
+   * so the two variants produce visually distinct outputs.
+   */
   directive: string
 }
 
@@ -21,20 +16,25 @@ export const VARIANTS: [VariantPersonality, VariantPersonality] = [
     label: 'Editorial',
     tagline: 'Magazine-grade layout, confident typography',
     directive:
-      'Editorial, magazine-inspired layout with confident typography and clear visual hierarchy. ' +
-      'Inspired by publications like Bon Appétit and Kinfolk. Mix serif display type for headings ' +
-      'with clean sans-serif for body copy. Use structured column grids with generous margins and ' +
-      'deliberate negative space. Prioritize legibility, restraint, and an adult, considered feel.',
+      'Design direction — Editorial: light, airy, and structured. ' +
+      'The palette should feel bright and considered — let the cuisine and restaurant personality guide the specific tones, but keep the overall feel clean and open. ' +
+      'Use a structured column grid with generous negative space; section headings anchor each zone clearly. ' +
+      'Typography pairs a display serif for the restaurant name and headings with a clean sans-serif for body copy — strong scale contrast between the two. ' +
+      'Dividers are restrained (thin rules or simple spacing, not decorative flourishes). ' +
+      'Photos, if present, are naturally lit, softly shadowed, and sit flush within the grid. ' +
+      'Mood reference: Bon Appétit, Kinfolk, Monocle — calm, considered, adult.',
   },
   {
     id: 'atmospheric',
     label: 'Atmospheric',
     tagline: 'Moody, textural, evocative',
     directive:
-      'Atmospheric, mood-forward design with rich textures and evocative detailing. ' +
-      'Think speakeasy menus, Michelin-star tasting cards, or a well-aged bistro. ' +
-      'Lean into the full depth of the color palette, use subtle paper/material textures where ' +
-      'appropriate, and let typography carry personality through weight contrast and elegant ' +
-      'ligatures. Dramatic but never cluttered.',
+      'Design direction — Atmospheric: dark, rich, and immersive. ' +
+      'The background must be deep and dark — let the cuisine, palette selection, and restaurant personality guide exactly which dark tone (charcoal, forest, burgundy, navy, etc.), but it must read as a predominantly dark-field design with light text on top. ' +
+      'Typography leans into contrast and character — a high-contrast serif or an expressive face that carries the mood. ' +
+      'Subtle texture (paper grain, linen, aged material) is welcome if it serves the atmosphere. ' +
+      'Layout is more centered and dramatic than rigidly grid-based; deliberate asymmetry is fine. ' +
+      'Photos, if present, use low-key, candlelit lighting with rich shadows — no bright white studio shots. ' +
+      'Mood reference: speakeasy menu, Michelin tasting card, aged French bistro — intimate, dramatic, luxurious.',
   },
 ]

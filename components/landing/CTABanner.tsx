@@ -23,7 +23,7 @@ export async function CTABanner() {
               size="lg"
               className="bg-amber text-pill-amber-fg hover:bg-amber/90 shadow-lg"
             >
-              <Link href="/auth/login">{t('button')}</Link>
+              <Link href="/dashboard/menus/new">{t('button')}</Link>
             </Button>
           </div>
         </div>

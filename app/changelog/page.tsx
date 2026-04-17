@@ -22,13 +22,17 @@ const changelog = [
       {
         type: 'changed' as const,
         items: [
+          'AI prompts now carry concrete typographic + palette directives per vibe, restaurant type, palette, and copy tone — less generic "editorial" output, more on-brief design',
+          'When you ask for image-forward menus, the generator is now told exactly which signature dishes to photograph (featured items, or the top-priced pick of each section)',
           'Recent menus now render as compact cards so more of the dashboard is usable at a glance',
           'Empty state shown on the dashboard when you haven\u2019t generated any menus yet',
+          'Dashboard cleaned up — only the real "Menus generated" stat is shown for now; QR / top-item / posts placeholders hidden until wired to live metrics',
         ],
       },
       {
         type: 'fixed' as const,
         items: [
+          'Clicking a menu card on the dashboard now opens its detail view (previews, config, items) instead of a 404',
           'Collapsed sidebar: icons, brand mark, and upgrade button are now centered instead of cramped against the left edge',
         ],
       },

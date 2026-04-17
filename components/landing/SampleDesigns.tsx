@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 
 interface Sample {
@@ -66,12 +65,10 @@ export async function SampleDesigns() {
                 className="border-brand-border bg-card group-hover:border-amber/50 relative aspect-[3/4] overflow-hidden rounded-xl border shadow-sm transition-[transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:-translate-y-1.5 group-hover:rotate-[0.4deg] group-hover:shadow-2xl"
                 style={{ transformOrigin: i % 2 === 0 ? 'bottom left' : 'bottom right' }}
               >
-                <Image
+                <img
                   src={s.src}
                   alt={s.alt}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
-                  className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:scale-[1.06]"
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform group-hover:scale-[1.06]"
                 />
                 <div
                   aria-hidden="true"

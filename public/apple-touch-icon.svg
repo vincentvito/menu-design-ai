@@ -1,0 +1,5 @@
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'>
+  <rect width='180' height='180' rx='40' fill='#1c3829'/>
+  <text x='90' y='125' font-family="Georgia, 'Times New Roman', serif" font-size='100' font-weight='700' font-style='italic' fill='#faf8f3' text-anchor='middle'>M</text>
+  <circle cx='145' cy='42' r='20' fill='#c9922a'/>
+</svg>

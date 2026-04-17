@@ -46,7 +46,7 @@ export async function Hero() {
                 size="lg"
                 className="bg-amber text-pill-amber-fg hover:bg-amber/90 w-full shadow-md sm:w-auto"
               >
-                <Link href="/auth/login">
+                <Link href="/dashboard/menus/new">
                   {t('ctaPrimary')}
                   <ArrowRight className="ml-1 h-4 w-4" aria-hidden="true" />
                 </Link>

@@ -3,11 +3,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { MENU_MODEL, replicate } from '@/lib/ai/replicate'
-import {
-  aspectRatioForFormat,
-  buildReplicatePrompt,
-  DEFAULT_NEGATIVE_PROMPT,
-} from '@/lib/ai/menu-prompts'
+import { aspectRatioForFormat, buildReplicatePrompt } from '@/lib/ai/menu-prompts'
 import { VARIANTS } from '@/lib/ai/variants'
 import type { MenuConfig } from '@/lib/menu-config/types'
 import type { MenuItem } from '@/lib/mock-data'
@@ -46,10 +42,6 @@ export async function POST(request: Request) {
 
   const baseInput = {
     aspect_ratio: aspectRatioForFormat(config.format),
-    negative_prompt: DEFAULT_NEGATIVE_PROMPT,
-    // Disable prompt expansion: we're providing explicit text to render,
-    // and expansion would rewrite our literal quoted strings.
-    enable_prompt_expansion: false,
   }
 
   // Build prompts up front so we can persist them alongside the prediction rows.

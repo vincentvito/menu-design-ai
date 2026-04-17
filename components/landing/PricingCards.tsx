@@ -103,7 +103,7 @@ export async function PricingCards() {
                       : 'bg-g800 hover:bg-g700 text-white',
                   )}
                 >
-                  <Link href="/auth/login">{t('cta')}</Link>
+                  <Link href="/dashboard/menus/new">{t('cta')}</Link>
                 </Button>
               </div>
             )
